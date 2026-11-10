@@ -33,7 +33,7 @@ This project turns the problem into a measurable number: the **flakiness rate pe
 2. 🧺 **Groups** results by test and by commit.
 3. 🧮 **Scores** flakiness: in how many commits the same test had different outcomes.
 4. 🏆 **Ranks** the most unstable tests, keeping those above a configurable threshold.
-5. 📈 **Optionally saves** a snapshot to SQLite so you can follow the trend over time (see *Track flakiness over time* below).
+5. 📝 **Optionally writes** result files (JSON, CSV and Markdown) with `--output-dir` (see *Result files* below).
 
 ### 🍰 The scoring
 
@@ -129,22 +129,23 @@ Each line is `score  test name  (flaky commits / commits with data)`.
 **Exit codes:** `0` no flaky tests · `1` flaky tests found (so CI can fail on it) · `2` error
 (bad input, missing token, GitHub API failure).
 
-### 📈 Track flakiness over time (SQLite history)
+### 📝 Result files (JSON, CSV, Markdown)
 
-Is the number of flaky tests going up or down? Save a snapshot on every analysis and
-render the trend:
+Write the analysis to files with `--output-dir`:
 
 ```bash
-python -m flaky_detector analyze --repo owner/repo --last-runs 50 --save-history history.db
-python -m flaky_detector trend --db history.db                          # text summary
-python -m flaky_detector trend --db history.db --format html -o trend.html
+python -m flaky_detector analyze ./results/*.xml --output-dir reports
+python -m flaky_detector analyze ./results/*.xml --output-dir reports --formats json,md
 ```
 
-The HTML report (self-contained, no JavaScript/CDN) shows flaky count and rate over
-time, an up/down verdict vs. the previous snapshot, **new** and **fixed** flaky tests,
-and a per-test score sparkline. Snapshots are grouped by `--repo` (or `local`); use
-`trend --source owner/repo` to filter. Keep `history.db` between runs (e.g. commit it
-to a dedicated branch or restore it with `actions/cache`).
+| File | Content |
+|---|---|
+| `flaky-report.json` | Settings, summary (`flaky_count`, `flaky_rate`, …) and every analyzed test with `score`, `commits`, `flaky_commits`, `is_flaky` and `commits_where_flaky` |
+| `flaky-report.csv` | One row per analyzed test: `test,score,flaky_commits,commits,is_flaky,commits_where_flaky` |
+| `flaky-report.md` | Human-readable summary and a ranked table of the flaky tests |
+
+The files are written even when no flaky test is found. To follow the trend over time, keep
+the JSON files of each run (e.g. as CI artifacts) and compare them.
 
 ## 🎛️ Options
 
@@ -157,28 +158,19 @@ to a dedicated branch or restore it with `actions/cache`).
 | `--last-runs` | Number of GitHub Actions runs to analyze | `30` |
 | `--threshold` | Minimum score (0–1) to consider a test flaky | `0.1` |
 | `--min-commits` | Ignore tests seen on fewer commits than this | `5` |
-| `--save-history DB` | Append a snapshot of the analysis to a SQLite file | off |
-
-### `trend`
-
-| Option | Description | Default |
-|---|---|---|
-| `--db DB` | SQLite history file (required) | – |
-| `--format` | Report format: `text` or `html` | `text` |
-| `-o`, `--output` | Write the report to this file instead of printing it | stdout |
-| `--source` | Only snapshots of this source (e.g. `owner/repo`) | all |
+| `--output-dir DIR` | Write result files (JSON, CSV, Markdown) to this directory | off |
+| `--formats` | Comma-separated formats to write: `json`, `csv`, `md` | all |
 
 ## 🤖 Using it in GitHub Actions
 
 A ready-to-use workflow lives in [`.github/workflows/flaky-report.yml`](.github/workflows/flaky-report.yml).
 Every Monday (or on demand) it:
 
-1. 📥 restores `history.db` from a dedicated `flaky-history` branch (created on the first run);
-2. 🔍 runs `analyze --save-history`, adding a new snapshot;
-3. 📈 builds the trend, shown in the run's **Job Summary** and uploaded as the `flaky-trend` artifact (`trend.html`);
-4. 💾 commits the updated `history.db` back to `flaky-history`.
+1. 🔍 runs `analyze --output-dir reports`;
+2. 📋 shows the Markdown report in the run's **Job Summary**;
+3. 📦 uploads `reports/` (JSON, CSV, Markdown) as the `flaky-report` artifact.
 
-Needs `contents: write` and `actions: read` permissions (already set in the file). Note that
+Needs `contents: read` and `actions: read` permissions (already set in the file). Note that
 `analyze` exits with `1` when it finds flaky tests; the workflow tolerates that so the report is
 still produced.
 
@@ -190,7 +182,7 @@ uploads JUnit artifacts (see the *Prerequisite* above); otherwise the snapshot i
 ```
 flaky-test-detector/
 ├── .github/workflows/
-│   └── flaky-report.yml   # weekly analysis + trend report
+│   └── flaky-report.yml   # weekly analysis + result files
 ├── docs/
 │   └── how-it-works.svg   # diagram used in this README
 ├── flaky_detector/
@@ -199,8 +191,7 @@ flaky-test-detector/
 │   ├── parsers.py         # JUnit XML parser
 │   ├── github.py          # fetches JUnit artifacts from GitHub Actions
 │   ├── scoring.py         # flakiness scoring and ranking
-│   ├── history.py         # SQLite snapshots of each analysis
-│   └── trend.py           # trend report (text / HTML)
+│   └── report.py          # result files (JSON / CSV / Markdown)
 ├── scripts/
 │   └── generate_junit.py  # generates sample JUnit XML files
 ├── results/               # sample JUnit XML files
@@ -220,8 +211,7 @@ flaky-test-detector/
 Things planned for the future:
 
 - [x] ⏰ Example scheduled workflow
-- [x] 📈 Flakiness rate history over time (`--save-history`, `trend`)
-- [ ] 🧾 Table / JSON / Markdown output for `analyze`
+- [x] 🧾 JSON / CSV / Markdown result files for `analyze` (`--output-dir`)
 - [ ] 🛋️ Suggested quarantine: flag flaky tests so they don't block merges
 - [ ] 🌍 Support for other CI providers (GitLab CI, CircleCI)
 

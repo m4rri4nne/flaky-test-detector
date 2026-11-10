@@ -13,7 +13,7 @@ def score_of(results, name="a::t"):
 def test_mixed_outcomes_on_same_commit_is_flaky(make_result):
     s = score_of([make_result(outcome=P), make_result(outcome=F)])
     assert (s.commits, s.flaky_commits, s.score) == (1, 1, 1.0)
-    assert s.flaky_shas == ("c1",)
+    assert s.commits_where_flaky == ("c1",)
 
 
 def test_consistent_outcomes_are_not_flaky(make_result):
@@ -70,11 +70,11 @@ def test_scores_are_per_test(make_result):
     assert by["a"].flaky_commits == 1 and by["b"].flaky_commits == 0
 
 
-def test_flaky_shas_sorted(make_result):
+def test_commits_where_flaky_sorted(make_result):
     results = []
     for sha in ("z", "a", "m"):
         results += [make_result(sha=sha, outcome=P), make_result(sha=sha, outcome=F)]
-    assert score_of(results).flaky_shas == ("a", "m", "z")
+    assert score_of(results).commits_where_flaky == ("a", "m", "z")
 
 
 # -- ranking ---------------------------------------------------------------
