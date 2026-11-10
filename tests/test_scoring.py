@@ -117,3 +117,14 @@ def test_rank_results_end_to_end(make_result):
         results += [make_result(sha=f"c{i}", outcome=P), make_result(sha=f"c{i}", outcome=F)]
     out = rank_results(results, threshold=0.1, min_commits=5)
     assert [s.name for s in out] == ["a::t"] and out[0].score == 1.0
+
+
+def test_error_messages_are_distinct_failures_only(make_result):
+    s = score_of([
+        make_result(outcome=P, message="ignored"),
+        make_result(outcome=F, message="timeout"),
+        make_result(outcome=E, message="boom"),
+        make_result(sha="c2", outcome=F, message="timeout"),
+        make_result(outcome=F),  # no message
+    ])
+    assert s.error_messages == ("timeout", "boom")

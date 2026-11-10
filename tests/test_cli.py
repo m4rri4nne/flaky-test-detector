@@ -1,3 +1,5 @@
+import re
+
 from flaky_detector import __main__ as cli
 
 from .conftest import junit
@@ -80,24 +82,29 @@ def test_output_dir_writes_json_csv_markdown(tmp_path, capsys):
     out = tmp_path / "out"
     files = make_flaky_files(tmp_path)
     assert cli.main(["analyze", "--output-dir", str(out), *files]) == 1
-    assert sorted(p.name for p in out.iterdir()) == [
-        "flaky-report.csv", "flaky-report.json", "flaky-report.md"]
+    names = sorted(p.name for p in out.iterdir())
+    pattern = re.compile(r"flaky-report-\d{8}T\d{6}Z\.(csv|json|md)")
+    assert len(names) == 3 and all(pattern.fullmatch(n) for n in names)
+    assert [n.rsplit(".", 1)[1] for n in names] == ["csv", "json", "md"]
+    stamp = names[0].rsplit(".", 1)[0]
 
-    data = json.loads((out / "flaky-report.json").read_text(encoding="utf-8"))
+    data = json.loads((out / f"{stamp}.json").read_text(encoding="utf-8"))
     assert data["flaky_count"] == 1 and data["tests"][0]["name"] == "m::t"
     assert data["tests"][0]["is_flaky"] is True
+    assert data["tests"][0]["error_messages"] == ["x"]
 
-    rows = list(csv.DictReader((out / "flaky-report.csv").open(encoding="utf-8")))
+    rows = list(csv.DictReader((out / f"{stamp}.csv").open(encoding="utf-8")))
     assert rows[0]["test"] == "m::t" and rows[0]["flaky_commits"] == "5"
 
-    assert "`m::t`" in (out / "flaky-report.md").read_text(encoding="utf-8")
+    assert "`m::t`" in (out / f"{stamp}.md").read_text(encoding="utf-8")
 
 
 def test_formats_limits_output(tmp_path):
     out = tmp_path / "out"
     cli.main(["analyze", "--output-dir", str(out), "--formats", "json",
               *make_flaky_files(tmp_path)])
-    assert [p.name for p in out.iterdir()] == ["flaky-report.json"]
+    names = [p.name for p in out.iterdir()]
+    assert len(names) == 1 and names[0].startswith("flaky-report-") and names[0].endswith(".json")
 
 
 def test_invalid_format_exits_2(tmp_path):
@@ -108,4 +115,5 @@ def test_report_written_even_without_flaky(tmp_path):
     out = tmp_path / "out"
     files = [write(tmp_path, f"{i}.xml", f"c{i}", True) for i in range(6)]
     assert cli.main(["analyze", "--output-dir", str(out), *files]) == 0
-    assert "No flaky tests" in (out / "flaky-report.md").read_text(encoding="utf-8")
+    (md,) = out.glob("flaky-report-*.md")
+    assert "No flaky tests" in md.read_text(encoding="utf-8")

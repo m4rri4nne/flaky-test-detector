@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-10T18:39:59+00:00",
+  "generated_at": "2026-11-10T20:16:40+00:00",
   "source": "local",
   "threshold": 0.1,
   "min_commits": 5,
@@ -57,6 +57,13 @@
         "gen0573511df3d",
         "gen05893e77ff9",
         "gen059095256f8"
+      ],
+      "error_messages": [
+        "AssertionError: timeout waiting for gateway",
+        "ConnectionError: connection reset by peer",
+        "AssertionError: race condition on shared state",
+        "AssertionError: expected 200, got 503",
+        "TimeoutError: operation timed out after 30s"
       ]
     },
     {
@@ -108,6 +115,13 @@
         "gen0573511df3d",
         "gen05893e77ff9",
         "gen059095256f8"
+      ],
+      "error_messages": [
+        "AssertionError: timeout waiting for gateway",
+        "ConnectionError: connection reset by peer",
+        "TimeoutError: operation timed out after 30s",
+        "AssertionError: race condition on shared state",
+        "AssertionError: expected 200, got 503"
       ]
     },
     {
@@ -154,6 +168,13 @@
         "gen0573511df3d",
         "gen05893e77ff9",
         "gen059095256f8"
+      ],
+      "error_messages": [
+        "AssertionError: timeout waiting for gateway",
+        "TimeoutError: operation timed out after 30s",
+        "AssertionError: race condition on shared state",
+        "AssertionError: expected 200, got 503",
+        "ConnectionError: connection reset by peer"
       ]
     },
     {
@@ -192,6 +213,13 @@
         "gen052541c8f78",
         "gen0566d0144d8",
         "gen059095256f8"
+      ],
+      "error_messages": [
+        "ConnectionError: connection reset by peer",
+        "AssertionError: race condition on shared state",
+        "TimeoutError: operation timed out after 30s",
+        "AssertionError: timeout waiting for gateway",
+        "AssertionError: expected 200, got 503"
       ]
     },
     {
@@ -230,6 +258,13 @@
         "gen050fd2e93ed",
         "gen05109bdbd25",
         "gen059095256f8"
+      ],
+      "error_messages": [
+        "AssertionError: timeout waiting for gateway",
+        "AssertionError: expected 200, got 503",
+        "ConnectionError: connection reset by peer",
+        "TimeoutError: operation timed out after 30s",
+        "AssertionError: race condition on shared state"
       ]
     },
     {
@@ -268,6 +303,13 @@
         "gen0556140387d",
         "gen0566d0144d8",
         "gen0573511df3d"
+      ],
+      "error_messages": [
+        "AssertionError: race condition on shared state",
+        "AssertionError: expected 200, got 503",
+        "TimeoutError: operation timed out after 30s",
+        "AssertionError: timeout waiting for gateway",
+        "ConnectionError: connection reset by peer"
       ]
     },
     {
@@ -294,6 +336,13 @@
         "gen0566d0144d8",
         "gen05893e77ff9",
         "gen059095256f8"
+      ],
+      "error_messages": [
+        "AssertionError: timeout waiting for gateway",
+        "ConnectionError: connection reset by peer",
+        "TimeoutError: operation timed out after 30s",
+        "AssertionError: expected 200, got 503",
+        "AssertionError: race condition on shared state"
       ]
     },
     {
@@ -318,6 +367,13 @@
         "gen05425944c4e",
         "gen0556140387d",
         "gen0573511df3d"
+      ],
+      "error_messages": [
+        "TimeoutError: operation timed out after 30s",
+        "AssertionError: timeout waiting for gateway",
+        "AssertionError: race condition on shared state",
+        "AssertionError: expected 200, got 503",
+        "ConnectionError: connection reset by peer"
       ]
     },
     {
@@ -342,6 +398,13 @@
         "gen0489865f96f",
         "gen05425944c4e",
         "gen059095256f8"
+      ],
+      "error_messages": [
+        "AssertionError: expected 200, got 503",
+        "TimeoutError: operation timed out after 30s",
+        "AssertionError: race condition on shared state",
+        "AssertionError: timeout waiting for gateway",
+        "ConnectionError: connection reset by peer"
       ]
     },
     {
@@ -361,6 +424,12 @@
         "gen0439089bcfd",
         "gen0489865f96f",
         "gen053ecac3756"
+      ],
+      "error_messages": [
+        "AssertionError: expected 200, got 503",
+        "AssertionError: timeout waiting for gateway",
+        "TimeoutError: operation timed out after 30s",
+        "AssertionError: race condition on shared state"
       ]
     },
     {
@@ -379,6 +448,12 @@
         "gen03542862014",
         "gen040f30fa5b6",
         "gen05109bdbd25"
+      ],
+      "error_messages": [
+        "AssertionError: expected 200, got 503",
+        "ConnectionError: connection reset by peer",
+        "TimeoutError: operation timed out after 30s",
+        "AssertionError: race condition on shared state"
       ]
     },
     {
@@ -397,6 +472,12 @@
         "gen0462de3153d",
         "gen04952c5be0f",
         "gen052541c8f78"
+      ],
+      "error_messages": [
+        "TimeoutError: operation timed out after 30s",
+        "AssertionError: timeout waiting for gateway",
+        "AssertionError: race condition on shared state",
+        "ConnectionError: connection reset by peer"
       ]
     },
     {
@@ -408,6 +489,9 @@
       "commits_where_flaky": [
         "aaa111",
         "bbb222"
+      ],
+      "error_messages": [
+        "AssertionError: timeout waiting for gateway"
       ]
     },
     {
@@ -416,7 +500,10 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": [
+        "AssertionError: regression in this commit"
+      ]
     },
     {
       "name": "tests.api.test_orders::test_10",
@@ -424,7 +511,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.api.test_orders::test_11",
@@ -432,7 +520,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.api.test_orders::test_12",
@@ -440,7 +529,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.api.test_orders::test_13",
@@ -448,7 +538,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.api.test_orders::test_14",
@@ -456,7 +547,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.api.test_orders::test_16",
@@ -464,7 +556,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.api.test_orders::test_2",
@@ -472,7 +565,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.api.test_orders::test_3",
@@ -480,7 +574,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.api.test_orders::test_4",
@@ -488,7 +583,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.api.test_orders::test_6",
@@ -496,7 +592,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.api.test_orders::test_7",
@@ -504,7 +601,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.api.test_orders::test_8",
@@ -512,7 +610,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.api.test_orders::test_9",
@@ -520,7 +619,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.api.test_users::test_1",
@@ -528,7 +628,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.api.test_users::test_10",
@@ -536,7 +637,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.api.test_users::test_11",
@@ -544,7 +646,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.api.test_users::test_12",
@@ -552,7 +655,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.api.test_users::test_3",
@@ -560,7 +664,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.api.test_users::test_4",
@@ -568,7 +673,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.api.test_users::test_5",
@@ -576,7 +682,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.api.test_users::test_6",
@@ -584,7 +691,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.api.test_users::test_7",
@@ -592,7 +700,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.api.test_users::test_8",
@@ -600,7 +709,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.api.test_users::test_9",
@@ -608,7 +718,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.checkout.test_cart::test_1",
@@ -616,7 +727,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.checkout.test_cart::test_11",
@@ -624,7 +736,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.checkout.test_cart::test_12",
@@ -632,7 +745,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.checkout.test_cart::test_2",
@@ -640,7 +754,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.checkout.test_cart::test_3",
@@ -648,7 +763,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.checkout.test_cart::test_4",
@@ -656,7 +772,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.checkout.test_cart::test_5",
@@ -664,7 +781,10 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": [
+        "AssertionError: regression in this commit"
+      ]
     },
     {
       "name": "tests.checkout.test_cart::test_6",
@@ -672,7 +792,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.checkout.test_cart::test_7",
@@ -680,7 +801,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.checkout.test_cart::test_8",
@@ -688,7 +810,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.checkout.test_payment::test_1",
@@ -696,7 +819,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.checkout.test_payment::test_10",
@@ -704,7 +828,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.checkout.test_payment::test_12",
@@ -712,7 +837,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.checkout.test_payment::test_13",
@@ -720,7 +846,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.checkout.test_payment::test_14",
@@ -728,7 +855,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.checkout.test_payment::test_4",
@@ -736,7 +864,10 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": [
+        "AssertionError: regression in this commit"
+      ]
     },
     {
       "name": "tests.checkout.test_payment::test_5",
@@ -744,7 +875,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.checkout.test_payment::test_6",
@@ -752,7 +884,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.checkout.test_payment::test_7",
@@ -760,7 +893,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.checkout.test_payment::test_9",
@@ -768,7 +902,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.db.test_migrations::test_1",
@@ -776,7 +911,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.db.test_migrations::test_2",
@@ -784,7 +920,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.db.test_migrations::test_3",
@@ -792,7 +929,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.db.test_migrations::test_4",
@@ -800,7 +938,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.db.test_migrations::test_5",
@@ -808,7 +947,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.db.test_migrations::test_6",
@@ -816,7 +956,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.login.test_oauth::test_2",
@@ -824,7 +965,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.login.test_oauth::test_3",
@@ -832,7 +974,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.login.test_oauth::test_4",
@@ -840,7 +983,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.login.test_oauth::test_5",
@@ -848,7 +992,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.login.test_oauth::test_6",
@@ -856,7 +1001,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.login.test_oauth::test_7",
@@ -864,7 +1010,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.login.test_oauth::test_8",
@@ -872,7 +1019,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.login.test_session::test_1",
@@ -880,7 +1028,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.login.test_session::test_10",
@@ -888,7 +1037,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.login.test_session::test_2",
@@ -896,7 +1046,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.login.test_session::test_3",
@@ -904,7 +1055,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.login.test_session::test_4",
@@ -912,7 +1064,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.login.test_session::test_5",
@@ -920,7 +1073,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.login.test_session::test_6",
@@ -928,7 +1082,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.login.test_session::test_7",
@@ -936,7 +1091,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.login.test_session::test_8",
@@ -944,7 +1100,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.login.test_session::test_9",
@@ -952,7 +1109,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.notifications.test_email::test_1",
@@ -960,7 +1118,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.notifications.test_email::test_2",
@@ -968,7 +1127,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.notifications.test_email::test_4",
@@ -976,7 +1136,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.notifications.test_email::test_5",
@@ -984,7 +1145,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.notifications.test_email::test_6",
@@ -992,7 +1154,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.notifications.test_email::test_7",
@@ -1000,7 +1163,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.notifications.test_email::test_8",
@@ -1008,7 +1172,10 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": [
+        "AssertionError: regression in this commit"
+      ]
     },
     {
       "name": "tests.search.test_index::test_10",
@@ -1016,7 +1183,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.search.test_index::test_2",
@@ -1024,7 +1192,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.search.test_index::test_3",
@@ -1032,7 +1201,10 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": [
+        "AssertionError: regression in this commit"
+      ]
     },
     {
       "name": "tests.search.test_index::test_4",
@@ -1040,7 +1212,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.search.test_index::test_5",
@@ -1048,7 +1221,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.search.test_index::test_6",
@@ -1056,7 +1230,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.search.test_index::test_7",
@@ -1064,7 +1239,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.search.test_index::test_8",
@@ -1072,7 +1248,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.search.test_index::test_9",
@@ -1080,7 +1257,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.utils.test_dates::test_1",
@@ -1088,7 +1266,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.utils.test_dates::test_10",
@@ -1096,7 +1275,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.utils.test_dates::test_11",
@@ -1104,7 +1284,10 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": [
+        "AssertionError: regression in this commit"
+      ]
     },
     {
       "name": "tests.utils.test_dates::test_12",
@@ -1112,7 +1295,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.utils.test_dates::test_13",
@@ -1120,7 +1304,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.utils.test_dates::test_14",
@@ -1128,7 +1313,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.utils.test_dates::test_2",
@@ -1136,7 +1322,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.utils.test_dates::test_3",
@@ -1144,7 +1331,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.utils.test_dates::test_4",
@@ -1152,7 +1340,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.utils.test_dates::test_5",
@@ -1160,7 +1349,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.utils.test_dates::test_7",
@@ -1168,7 +1358,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     },
     {
       "name": "tests.utils.test_dates::test_8",
@@ -1176,7 +1367,8 @@
       "commits": 60,
       "flaky_commits": 0,
       "is_flaky": false,
-      "commits_where_flaky": []
+      "commits_where_flaky": [],
+      "error_messages": []
     }
   ]
 }

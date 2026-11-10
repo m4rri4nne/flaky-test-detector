@@ -11,7 +11,6 @@ from pathlib import Path
 from .scoring import FlakinessRanker, TestScore
 
 FORMATS = ("json", "csv", "md")
-_FILENAMES = {"json": "flaky-report.json", "csv": "flaky-report.csv", "md": "flaky-report.md"}
 _CSV_FIELDS = ["test", "score", "flaky_commits", "commits", "is_flaky", "commits_where_flaky"]
 
 
@@ -61,7 +60,8 @@ def render_json(report: Report) -> str:
         "tests": [
             {"name": s.name, "score": round(s.score, 4), "commits": s.commits,
              "flaky_commits": s.flaky_commits, "is_flaky": s.name in flaky_names,
-             "commits_where_flaky": list(s.commits_where_flaky)}
+             "commits_where_flaky": list(s.commits_where_flaky),
+             "error_messages": list(s.error_messages)}
             for s in report.tests
         ],
     }
@@ -112,9 +112,10 @@ def write_reports(report: Report, out_dir: str | Path,
         raise ValueError(f"unknown format(s): {', '.join(sorted(unknown))}")
     directory = Path(out_dir)
     directory.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.fromisoformat(report.generated_at).strftime("%Y%m%dT%H%M%SZ")
     written = []
     for fmt in formats:
-        path = directory / _FILENAMES[fmt]
+        path = directory / f"flaky-report-{stamp}.{fmt}"
         if fmt == "json":
             path.write_text(render_json(report), encoding="utf-8")
         elif fmt == "csv":

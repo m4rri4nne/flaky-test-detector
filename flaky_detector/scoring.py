@@ -23,6 +23,7 @@ class TestScore:
     commits: int  # commits with usable data for this test
     flaky_commits: int  # commits where the test had mixed outcomes
     commits_where_flaky: tuple[str, ...] = field(default=())
+    error_messages: tuple[str, ...] = field(default=())  # distinct failure messages, first seen first
 
     @property
     def score(self) -> float:
@@ -39,10 +40,13 @@ class FlakinessScorer:
     def score(self, results: Iterable[TestResult]) -> list[TestScore]:
         # test name -> commit sha -> set of "passed" booleans seen
         outcomes: dict[str, dict[str, set[bool]]] = defaultdict(lambda: defaultdict(set))
+        messages: dict[str, dict[str, None]] = defaultdict(dict)  # ordered, de-duplicated
         for r in results:
             if not r.commit_sha or r.outcome.value == "skipped":
                 continue
             outcomes[r.name][r.commit_sha].add(r.passed)
+            if not r.passed and r.message:
+                messages[r.name][r.message] = None
 
         scores = []
         for name, by_commit in outcomes.items():
@@ -53,6 +57,7 @@ class FlakinessScorer:
                     commits=len(by_commit),
                     flaky_commits=len(flaky),
                     commits_where_flaky=flaky,
+                    error_messages=tuple(messages[name]),
                 )
             )
         return scores

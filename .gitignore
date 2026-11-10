@@ -2,6 +2,9 @@
 .env
 .env.*
 !.env.example
+results
+scripts/results
+notes.md
 
 # python
 .venv/

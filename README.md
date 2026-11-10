@@ -34,6 +34,7 @@ This project turns the problem into a measurable number: the **flakiness rate pe
 3. 🧮 **Scores** flakiness: in how many commits the same test had different outcomes.
 4. 🏆 **Ranks** the most unstable tests, keeping those above a configurable threshold.
 5. 📝 **Optionally writes** result files (JSON, CSV and Markdown) with `--output-dir` (see *Result files* below).
+6. 🤖 **Optionally analyzes** the latest report with an AI agent that suggests root causes (see *AI analysis agent* below).
 
 ### 🍰 The scoring
 
@@ -140,12 +141,35 @@ python -m flaky_detector analyze ./results/*.xml --output-dir reports --formats 
 
 | File | Content |
 |---|---|
-| `flaky-report.json` | Settings, summary (`flaky_count`, `flaky_rate`, …) and every analyzed test with `score`, `commits`, `flaky_commits`, `is_flaky` and `commits_where_flaky` |
-| `flaky-report.csv` | One row per analyzed test: `test,score,flaky_commits,commits,is_flaky,commits_where_flaky` |
-| `flaky-report.md` | Human-readable summary and a ranked table of the flaky tests |
+| `flaky-report-<timestamp>.json` | Settings, summary (`flaky_count`, `flaky_rate`, …) and every analyzed test with `score`, `commits`, `flaky_commits`, `is_flaky`, `commits_where_flaky` and `error_messages` (distinct failure messages) |
+| `flaky-report-<timestamp>.csv` | One row per analyzed test: `test,score,flaky_commits,commits,is_flaky,commits_where_flaky` |
+| `flaky-report-<timestamp>.md` | Human-readable summary and a ranked table of the flaky tests |
 
-The files are written even when no flaky test is found. To follow the trend over time, keep
-the JSON files of each run (e.g. as CI artifacts) and compare them.
+`<timestamp>` is the UTC generation time (e.g. `20261110T193223Z`), so each run writes new files
+instead of overwriting the previous ones. The files are written even when no flaky test is found.
+To follow the trend over time, keep the JSON files of each run (e.g. as CI artifacts) and compare them.
+
+### 🤖 AI analysis agent
+
+[`agents/agent.py`](agents/agent.py) is an optional agent (built with
+[Strands Agents](https://strandsagents.com) and Gemini) that reads the JSON reports in `reports/`
+and infers possible **root causes** from the `error_messages` of each flaky test. It has two tools:
+
+- `fetch_json_report`: loads the latest report, one by timestamp (`YYYY-MM-DD` or
+  `YYYY-MM-DDTHH:MM:SS`, UTC) or all reports in a period (`last_24_hours`, `last_7_days`, …, `last_365_days`).
+- `export_analysis`: saves `reports/flaky-analysis-<timestamp>.md` with the summary, root causes,
+  recommendations and an evidence table of the raw error messages.
+
+Unlike the detector, the agent needs extra dependencies and an API key:
+
+```bash
+pip install -r requirements.txt   # or: uv sync --extra agent
+echo "GOOGLE_API_KEY=<your-key>" >> .env
+python agents/agent.py
+```
+
+The question asked to the agent is hard-coded at the bottom of `agents/agent.py`; edit it to
+analyze another period or report.
 
 ## 🎛️ Options
 
@@ -167,7 +191,7 @@ A ready-to-use workflow lives in [`.github/workflows/flaky-report.yml`](.github/
 Every Monday (or on demand) it:
 
 1. 🔍 runs `analyze --output-dir reports`;
-2. 📋 shows the Markdown report in the run's **Job Summary**;
+2. 📋 shows the timestamped Markdown report (`reports/flaky-report-*.md`) in the run's **Job Summary**;
 3. 📦 uploads `reports/` (JSON, CSV, Markdown) as the `flaky-report` artifact.
 
 Needs `contents: read` and `actions: read` permissions (already set in the file). Note that
@@ -183,6 +207,8 @@ uploads JUnit artifacts (see the *Prerequisite* above); otherwise the snapshot i
 flaky-test-detector/
 ├── .github/workflows/
 │   └── flaky-report.yml   # weekly analysis + result files
+├── agents/
+│   └── agent.py           # optional AI agent: root-cause analysis of reports
 ├── docs/
 │   └── how-it-works.svg   # diagram used in this README
 ├── flaky_detector/
@@ -194,7 +220,8 @@ flaky-test-detector/
 │   └── report.py          # result files (JSON / CSV / Markdown)
 ├── scripts/
 │   └── generate_junit.py  # generates sample JUnit XML files
-├── results/               # sample JUnit XML files
+├── results/               # sample JUnit XML files (git-ignored)
+├── reports/               # generated reports and AI analyses
 ├── tests/
 ├── pyproject.toml         # project metadata and dev dependencies (uv)
 ├── requirements.txt
@@ -212,8 +239,8 @@ Things planned for the future:
 
 - [x] ⏰ Example scheduled workflow
 - [x] 🧾 JSON / CSV / Markdown result files for `analyze` (`--output-dir`)
+- [x] 🤖 AI agent that suggests root causes from error messages
 - [ ] 🛋️ Suggested quarantine: flag flaky tests so they don't block merges
-- [ ] 🌍 Support for other CI providers (GitLab CI, CircleCI)
 
 ## 🤝 Contributing
 
