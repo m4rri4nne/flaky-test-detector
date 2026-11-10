@@ -22,7 +22,7 @@ class TestScore:
     name: str
     commits: int  # commits with usable data for this test
     flaky_commits: int  # commits where the test had mixed outcomes
-    flaky_shas: tuple[str, ...] = field(default=())
+    commits_where_flaky: tuple[str, ...] = field(default=())
 
     @property
     def score(self) -> float:
@@ -52,7 +52,7 @@ class FlakinessScorer:
                     name=name,
                     commits=len(by_commit),
                     flaky_commits=len(flaky),
-                    flaky_shas=flaky,
+                    commits_where_flaky=flaky,
                 )
             )
         return scores

@@ -6,10 +6,9 @@ import argparse
 import sys
 
 from .github import GitHubError, fetch_junit_results
-from .history import HistoryStore
 from .parsers import JUnitParseError, JUnitParser
+from .report import FORMATS, Report, write_reports
 from .scoring import FlakinessRanker, FlakinessScorer
-from .trend import render_html, render_text, summary_line
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -26,63 +25,62 @@ def build_parser() -> argparse.ArgumentParser:
                          help="minimum flakiness score (0-1), default 0.1")
     analyze.add_argument("--min-commits", type=int, default=5,
                          help="ignore tests seen on fewer commits, default 5")
-    analyze.add_argument("--save-history", metavar="DB",
-                         help="append a snapshot of this analysis to a SQLite file")
-
-    trend = sub.add_parser("trend", help="Show how flakiness evolves across saved snapshots")
-    trend.add_argument("--db", required=True, help="SQLite history file")
-    trend.add_argument("--format", choices=["text", "html"], default="text")
-    trend.add_argument("-o", "--output", help="write the report to this file")
-    trend.add_argument("--source", help="only snapshots of this source (e.g. owner/repo)")
+    analyze.add_argument("--output-dir", metavar="DIR",
+                         help="write result files (JSON, CSV, Markdown) to this directory")
+    analyze.add_argument("--formats", default=",".join(FORMATS),
+                         help="comma-separated result formats for --output-dir "
+                         f"({', '.join(FORMATS)}), default all")
     return parser
 
 
-def run_trend(args: argparse.Namespace) -> int:
-    from pathlib import Path
+def expand_globs(patterns: list[str]) -> list[str]:
+    """Expand wildcards ourselves: PowerShell and cmd pass ``*.xml`` through literally."""
+    import glob
 
-    if not Path(args.db).is_file():
-        print(f"error: history file not found: {args.db}", file=sys.stderr)
-        return 2
-    with HistoryStore(args.db) as store:
-        render = render_html if args.format == "html" else render_text
-        text = render(store, args.source)
-    if args.output:
-        Path(args.output).write_text(text, encoding="utf-8")
-        print(f"Wrote {args.output}")
-    else:
-        print(text)
-    return 0
+    files: list[str] = []
+    for pattern in patterns:
+        if glob.has_magic(pattern):
+            matches = sorted(glob.glob(pattern, recursive=True))
+            if not matches:
+                raise ValueError(f"no files match {pattern}")
+            files.extend(matches)
+        else:
+            files.append(pattern)
+    return files
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-
-    if args.command == "trend":
-        return run_trend(args)
 
     if not args.files and not args.repo:
         print("error: pass JUnit XML files and/or --repo owner/name", file=sys.stderr)
         return 2
 
     try:
+        args.files = expand_globs(args.files)
         results = JUnitParser().parse_files(args.files)
         if args.repo:
             results += fetch_junit_results(args.repo, last_runs=args.last_runs)
         ranker = FlakinessRanker(threshold=args.threshold, min_commits=args.min_commits)
+        formats = tuple(f.strip() for f in args.formats.split(",") if f.strip())
+        if set(formats) - set(FORMATS):
+            raise ValueError(f"--formats must be a subset of {', '.join(FORMATS)}")
     except (JUnitParseError, GitHubError, ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
 
     scores = FlakinessScorer().score(results)
     flaky = ranker.flaky(scores)
-    if args.save_history:
-        with HistoryStore(args.save_history) as store:
-            previous = store.snapshots(args.repo or "local")
-            snap = store.save(scores, ranker, source=args.repo or "local")
-        print(f"Saved snapshot #{snap.id} to {args.save_history}: "
-              + summary_line(previous[-1] if previous else None, snap))
     print(f"Parsed {len(results)} results from {len(args.files)} file(s)"
           + (f" and {args.repo}." if args.repo else "."))
+    if args.output_dir:
+        report = Report.build(scores, ranker, args.repo or "local", len(results))
+        try:
+            for path in write_reports(report, args.output_dir, formats):
+                print(f"Wrote {path}")
+        except OSError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 2
     if not flaky:
         print(f"No flaky tests at threshold {args.threshold} "
               f"(min commits {args.min_commits}).")
