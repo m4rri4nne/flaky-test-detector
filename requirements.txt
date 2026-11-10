@@ -1,2 +1,6 @@
-# The detector only uses the Python standard library (Python 3.10+),
-# so there are no runtime dependencies.
+# The detector (flaky_detector/) only uses the Python standard library (Python 3.10+),
+# so it has no runtime dependencies.
+#
+# Optional: the AI analysis agent (agents/agent.py)
+strands-agents[gemini]
+python-dotenv
