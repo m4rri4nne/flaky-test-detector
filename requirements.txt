@@ -1,0 +1,2 @@
+# The detector only uses the Python standard library (Python 3.10+),
+# so there are no runtime dependencies.

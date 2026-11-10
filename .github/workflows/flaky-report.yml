@@ -1,0 +1,74 @@
+name: Flaky Test Report
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"   # every Monday, 06:00 UTC
+  workflow_dispatch:
+
+# one run at a time, so two runs never race on the history branch
+concurrency:
+  group: flaky-report
+  cancel-in-progress: false
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # push history.db to the flaky-history branch
+      actions: read     # read workflow runs / artifacts
+    env:
+      HISTORY_BRANCH: flaky-history
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # history.db lives on its own branch so it survives between runs
+      - name: Restore history
+        run: |
+          if git ls-remote --exit-code --heads origin "$HISTORY_BRANCH" >/dev/null 2>&1; then
+            git fetch origin "$HISTORY_BRANCH"
+            git worktree add history "origin/$HISTORY_BRANCH" --detach
+            git -C history checkout -B "$HISTORY_BRANCH"
+          else
+            git worktree add --detach history
+            git -C history checkout --orphan "$HISTORY_BRANCH"
+            git -C history rm -rf . >/dev/null 2>&1 || true
+          fi
+
+      - name: Analyze and save snapshot
+        run: |
+          # analyze exits 1 when flaky tests are found; that must not stop the report
+          python -m flaky_detector analyze \
+            --repo "${{ github.repository }}" \
+            --last-runs 50 --threshold 0.1 \
+            --save-history history/history.db || [ $? -eq 1 ]
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build trend report
+        run: |
+          python -m flaky_detector trend --db history/history.db \
+            --format html -o trend.html
+          {
+            echo '## Flaky tests trend'
+            echo '```'
+            python -m flaky_detector trend --db history/history.db
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Save history
+        run: |
+          cd history
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add history.db
+          git commit -m "Flaky history: $(date -u +%F)"
+          git push origin "HEAD:$HISTORY_BRANCH"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flaky-trend
+          path: trend.html

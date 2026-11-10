@@ -1,0 +1,32 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Flaky tests trend</title><style>
+:root{--bg:#fff;--fg:#1f2430;--muted:#6b7280;--card:#f6f7fb;--line:#4f46e5;
+--up:#c0392b;--down:#1e8e5a;--grid:#d9dce6}
+@media(prefers-color-scheme:dark){:root{--bg:#14161d;--fg:#e6e8ef;--muted:#9aa1b2;
+--card:#1e222c;--line:#8b9cff;--up:#ff7b6b;--down:#4cd59a;--grid:#343a48}}
+body{font:15px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--fg);
+max-width:860px;margin:0 auto;padding:24px 16px}
+h1{font-size:1.4rem;margin:0 0 4px}h2{font-size:1.05rem;margin:28px 0 8px}
+.muted{color:var(--muted)}.card{background:var(--card);border-radius:10px;padding:14px 16px}
+.verdict{font-size:1.15rem;font-weight:600}.up{color:var(--up)}.down{color:var(--down)}
+svg{width:100%;height:auto}.grid{stroke:var(--grid);stroke-width:1}
+.axis{fill:var(--muted);font-size:11px}.line{fill:none;stroke:var(--line);stroke-width:2}
+.dot{fill:var(--line)}.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.cols{grid-template-columns:1fr}}
+ul{margin:4px 0 0;padding-left:18px}table{width:100%;border-collapse:collapse}
+td,th{padding:6px 8px;text-align:left;border-bottom:1px solid var(--grid)}
+.spark{width:110px;height:26px}.spark polyline{fill:none;stroke:var(--line);stroke-width:1.5}
+code{font-size:.85em;word-break:break-all}
+</style></head><body>
+<h1>Flaky tests trend</h1>
+<p class="muted">2 snapshot(s) · last: 2026-11-09 13:01:01 UTC
+</p>
+<div class="card"><span class="verdict muted">13 flaky test(s), ■ unchanged (+0) vs. previous snapshot (13).</span>
+<div class="muted">Flaky rate now: 11.6% of 112 analyzed tests
+(threshold 0.1, min commits 1).</div></div>
+<h2>Flaky tests over time</h2><svg viewBox="0 0 720 220" role="img"><line x1="44" x2="704" y1="192.0" y2="192.0" class="grid"/><text x="38" y="196.0" class="axis" text-anchor="end">0</text><line x1="44" x2="704" y1="103.0" y2="103.0" class="grid"/><text x="38" y="107.0" class="axis" text-anchor="end">7.475</text><line x1="44" x2="704" y1="14.0" y2="14.0" class="grid"/><text x="38" y="18.0" class="axis" text-anchor="end">14.95</text><polyline points="44.0,37.2 704.0,37.2" class="line"/><circle cx="44.0" cy="37.2" r="3.5" class="dot"><title>2026-11-09: 13</title></circle><circle cx="704.0" cy="37.2" r="3.5" class="dot"><title>2026-11-09: 13</title></circle><text x="44.0" y="212" class="axis" text-anchor="middle">2026-11-09</text><text x="704.0" y="212" class="axis" text-anchor="middle">2026-11-09</text></svg>
+<h2>Flaky rate over time</h2><svg viewBox="0 0 720 220" role="img"><line x1="44" x2="704" y1="192.0" y2="192.0" class="grid"/><text x="38" y="196.0" class="axis" text-anchor="end">0%</text><line x1="44" x2="704" y1="103.0" y2="103.0" class="grid"/><text x="38" y="107.0" class="axis" text-anchor="end">7%</text><line x1="44" x2="704" y1="14.0" y2="14.0" class="grid"/><text x="38" y="18.0" class="axis" text-anchor="end">13%</text><polyline points="44.0,37.2 704.0,37.2" class="line"/><circle cx="44.0" cy="37.2" r="3.5" class="dot"><title>2026-11-09: 12%</title></circle><circle cx="704.0" cy="37.2" r="3.5" class="dot"><title>2026-11-09: 12%</title></circle><text x="44.0" y="212" class="axis" text-anchor="middle">2026-11-09</text><text x="704.0" y="212" class="axis" text-anchor="middle">2026-11-09</text></svg>
+<div class="cols"><div class="card"><strong>New since last snapshot</strong>
+<ul><li>none</li></ul></div><div class="card"><strong>Fixed since last snapshot</strong>
+<ul><li>none</li></ul></div></div>
+<h2>Worst tests now (score history)</h2>
+<table><tr><th>Test</th><th>Score</th><th>Trend</th></tr><tr><td><code>tests.checkout.test_cart::test_9</code></td><td>70%</td><td><svg viewBox="0 0 110 26" class="spark"><polyline points="2.0,3.0 108.0,3.0"/></svg></td></tr><tr><td><code>tests.notifications.test_email::test_3</code></td><td>70%</td><td><svg viewBox="0 0 110 26" class="spark"><polyline points="2.0,3.0 108.0,3.0"/></svg></td></tr><tr><td><code>tests.api.test_users::test_2</code></td><td>62%</td><td><svg viewBox="0 0 110 26" class="spark"><polyline points="2.0,3.0 108.0,3.0"/></svg></td></tr><tr><td><code>tests.checkout.test_cart::test_10</code></td><td>48%</td><td><svg viewBox="0 0 110 26" class="spark"><polyline points="2.0,3.0 108.0,3.0"/></svg></td></tr><tr><td><code>tests.checkout.test_payment::test_2</code></td><td>48%</td><td><svg viewBox="0 0 110 26" class="spark"><polyline points="2.0,3.0 108.0,3.0"/></svg></td></tr><tr><td><code>tests.utils.test_dates::test_6</code></td><td>48%</td><td><svg viewBox="0 0 110 26" class="spark"><polyline points="2.0,3.0 108.0,3.0"/></svg></td></tr><tr><td><code>tests.login.test_session::test_expiry</code></td><td>33%</td><td><svg viewBox="0 0 110 26" class="spark"><polyline points="2.0,3.0 108.0,3.0"/></svg></td></tr><tr><td><code>tests.checkout.test_payment::test_11</code></td><td>28%</td><td><svg viewBox="0 0 110 26" class="spark"><polyline points="2.0,3.0 108.0,3.0"/></svg></td></tr><tr><td><code>tests.api.test_orders::test_5</code></td><td>25%</td><td><svg viewBox="0 0 110 26" class="spark"><polyline points="2.0,3.0 108.0,3.0"/></svg></td></tr><tr><td><code>tests.login.test_oauth::test_1</code></td><td>25%</td><td><svg viewBox="0 0 110 26" class="spark"><polyline points="2.0,3.0 108.0,3.0"/></svg></td></tr></table></body></html>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+  <testsuite name="pytest" errors="1" failures="5" skipped="1" tests="110" time="128.516" timestamp="2026-11-25T09:00:00">
+    <properties>
+      <property name="commit_sha" value="gen052541c8f78"/>
+      <property name="run_id" value="20157"/>
+    </properties>
+    <testcase classname="tests.checkout.test_payment" name="test_1" time="2.022"/>
+    <testcase classname="tests.checkout.test_payment" name="test_2" time="0.716"/>
+    <testcase classname="tests.checkout.test_payment" name="test_3" time="1.561"/>
+    <testcase classname="tests.checkout.test_payment" name="test_4" time="1.889"/>
+    <testcase classname="tests.checkout.test_payment" name="test_5" time="0.618"/>
+    <testcase classname="tests.checkout.test_payment" name="test_6" time="2.188"/>
+    <testcase classname="tests.checkout.test_payment" name="test_7" time="0.740"/>
+    <testcase classname="tests.checkout.test_payment" name="test_8" time="0.619"/>
+    <testcase classname="tests.checkout.test_payment" name="test_9" time="1.482"/>
+    <testcase classname="tests.checkout.test_payment" name="test_10" time="0.335"/>
+    <testcase classname="tests.checkout.test_payment" name="test_11" time="2.031"><failure message="AssertionError: race condition on shared state">AssertionError: race condition on shared state</failure></testcase>
+    <testcase classname="tests.checkout.test_payment" name="test_12" time="2.500"/>
+    <testcase classname="tests.checkout.test_payment" name="test_13" time="0.580"/>
+    <testcase classname="tests.checkout.test_payment" name="test_14" time="0.320"/>
+    <testcase classname="tests.checkout.test_cart" name="test_1" time="2.415"/>
+    <testcase classname="tests.checkout.test_cart" name="test_2" time="0.677"/>
+    <testcase classname="tests.checkout.test_cart" name="test_3" time="0.679"/>
+    <testcase classname="tests.checkout.test_cart" name="test_4" time="0.408"/>
+    <testcase classname="tests.checkout.test_cart" name="test_5" time="1.452"/>
+    <testcase classname="tests.checkout.test_cart" name="test_6" time="1.114"/>
+    <testcase classname="tests.checkout.test_cart" name="test_7" time="0.837"/>
+    <testcase classname="tests.checkout.test_cart" name="test_8" time="1.498"/>
+    <testcase classname="tests.checkout.test_cart" name="test_9" time="0.786"/>
+    <testcase classname="tests.checkout.test_cart" name="test_10" time="1.505"><error message="ConnectionError: connection reset by peer">ConnectionError: connection reset by peer</error></testcase>
+    <testcase classname="tests.checkout.test_cart" name="test_11" time="0.611"/>
+    <testcase classname="tests.checkout.test_cart" name="test_12" time="1.244"/>
+    <testcase classname="tests.login.test_session" name="test_1" time="0.499"/>
+    <testcase classname="tests.login.test_session" name="test_2" time="1.205"/>
+    <testcase classname="tests.login.test_session" name="test_3" time="0.776"/>
+    <testcase classname="tests.login.test_session" name="test_4" time="0.932"/>
+    <testcase classname="tests.login.test_session" name="test_5" time="0.404"/>
+    <testcase classname="tests.login.test_session" name="test_6" time="2.267"/>
+    <testcase classname="tests.login.test_session" name="test_7" time="0.963"/>
+    <testcase classname="tests.login.test_session" name="test_8" time="1.490"/>
+    <testcase classname="tests.login.test_session" name="test_9" time="2.168"/>
+    <testcase classname="tests.login.test_session" name="test_10" time="1.604"/>
+    <testcase classname="tests.login.test_oauth" name="test_1" time="1.418"/>
+    <testcase classname="tests.login.test_oauth" name="test_2" time="0.858"/>
+    <testcase classname="tests.login.test_oauth" name="test_3" time="2.465"/>
+    <testcase classname="tests.login.test_oauth" name="test_4" time="0.249"/>
+    <testcase classname="tests.login.test_oauth" name="test_5" time="0.335"/>
+    <testcase classname="tests.login.test_oauth" name="test_6" time="0.992"/>
+    <testcase classname="tests.login.test_oauth" name="test_7" time="0.195"/>
+    <testcase classname="tests.login.test_oauth" name="test_8" time="0.577"/>
+    <testcase classname="tests.api.test_orders" name="test_1" time="1.207"><failure message="AssertionError: regression in this commit">AssertionError: regression in this commit</failure></testcase>
+    <testcase classname="tests.api.test_orders" name="test_2" time="0.584"/>
+    <testcase classname="tests.api.test_orders" name="test_3" time="1.005"/>
+    <testcase classname="tests.api.test_orders" name="test_4" time="2.361"/>
+    <testcase classname="tests.api.test_orders" name="test_5" time="2.138"/>
+    <testcase classname="tests.api.test_orders" name="test_6" time="0.800"/>
+    <testcase classname="tests.api.test_orders" name="test_7" time="1.671"/>
+    <testcase classname="tests.api.test_orders" name="test_8" time="1.274"/>
+    <testcase classname="tests.api.test_orders" name="test_9" time="2.295"/>
+    <testcase classname="tests.api.test_orders" name="test_10" time="0.633"/>
+    <testcase classname="tests.api.test_orders" name="test_11" time="0.262"/>
+    <testcase classname="tests.api.test_orders" name="test_12" time="2.265"/>
+    <testcase classname="tests.api.test_orders" name="test_13" time="1.755"/>
+    <testcase classname="tests.api.test_orders" name="test_14" time="2.226"/>
+    <testcase classname="tests.api.test_orders" name="test_15" time="1.067"/>
+    <testcase classname="tests.api.test_orders" name="test_16" time="1.917"/>
+    <testcase classname="tests.api.test_users" name="test_1" time="0.071"/>
+    <testcase classname="tests.api.test_users" name="test_2" time="1.430"><failure message="AssertionError: race condition on shared state">AssertionError: race condition on shared state</failure></testcase>
+    <testcase classname="tests.api.test_users" name="test_3" time="2.256"/>
+    <testcase classname="tests.api.test_users" name="test_4" time="0.792"/>
+    <testcase classname="tests.api.test_users" name="test_5" time="0.348"/>
+    <testcase classname="tests.api.test_users" name="test_6" time="0.157"/>
+    <testcase classname="tests.api.test_users" name="test_7" time="0.420"/>
+    <testcase classname="tests.api.test_users" name="test_8" time="0.269"/>
+    <testcase classname="tests.api.test_users" name="test_9" time="0.888"/>
+    <testcase classname="tests.api.test_users" name="test_10" time="0.580"/>
+    <testcase classname="tests.api.test_users" name="test_11" time="0.833"/>
+    <testcase classname="tests.api.test_users" name="test_12" time="0.030"/>
+    <testcase classname="tests.db.test_migrations" name="test_1" time="0.240"/>
+    <testcase classname="tests.db.test_migrations" name="test_2" time="0.529"/>
+    <testcase classname="tests.db.test_migrations" name="test_3" time="1.931"/>
+    <testcase classname="tests.db.test_migrations" name="test_4" time="0.255"/>
+    <testcase classname="tests.db.test_migrations" name="test_5" time="1.601"/>
+    <testcase classname="tests.db.test_migrations" name="test_6" time="0.752"/>
+    <testcase classname="tests.search.test_index" name="test_1" time="1.667"><failure message="TimeoutError: operation timed out after 30s">TimeoutError: operation timed out after 30s</failure></testcase>
+    <testcase classname="tests.search.test_index" name="test_2" time="2.294"/>
+    <testcase classname="tests.search.test_index" name="test_3" time="1.155"/>
+    <testcase classname="tests.search.test_index" name="test_4" time="0.353"/>
+    <testcase classname="tests.search.test_index" name="test_5" time="1.168"/>
+    <testcase classname="tests.search.test_index" name="test_6" time="2.435"/>
+    <testcase classname="tests.search.test_index" name="test_7" time="0.939"/>
+    <testcase classname="tests.search.test_index" name="test_8" time="1.854"/>
+    <testcase classname="tests.search.test_index" name="test_9" time="2.151"/>
+    <testcase classname="tests.search.test_index" name="test_10" time="0.388"/>
+    <testcase classname="tests.notifications.test_email" name="test_1" time="0.238"/>
+    <testcase classname="tests.notifications.test_email" name="test_2" time="1.365"/>
+    <testcase classname="tests.notifications.test_email" name="test_3" time="1.772"><failure message="AssertionError: expected 200, got 503">AssertionError: expected 200, got 503</failure></testcase>
+    <testcase classname="tests.notifications.test_email" name="test_4" time="1.753"/>
+    <testcase classname="tests.notifications.test_email" name="test_5" time="1.352"/>
+    <testcase classname="tests.notifications.test_email" name="test_6" time="0.278"/>
+    <testcase classname="tests.notifications.test_email" name="test_7" time="0.455"/>
+    <testcase classname="tests.notifications.test_email" name="test_8" time="2.320"/>
+    <testcase classname="tests.utils.test_dates" name="test_1" time="0.024"/>
+    <testcase classname="tests.utils.test_dates" name="test_2" time="1.930"/>
+    <testcase classname="tests.utils.test_dates" name="test_3" time="1.210"/>
+    <testcase classname="tests.utils.test_dates" name="test_4" time="0.108"/>
+    <testcase classname="tests.utils.test_dates" name="test_5" time="1.234"/>
+    <testcase classname="tests.utils.test_dates" name="test_6" time="0.959"/>
+    <testcase classname="tests.utils.test_dates" name="test_7" time="2.404"/>
+    <testcase classname="tests.utils.test_dates" name="test_8" time="2.202"/>
+    <testcase classname="tests.utils.test_dates" name="test_9" time="0.000"><skipped message="requires external service"/></testcase>
+    <testcase classname="tests.utils.test_dates" name="test_10" time="1.474"/>
+    <testcase classname="tests.utils.test_dates" name="test_11" time="2.466"/>
+    <testcase classname="tests.utils.test_dates" name="test_12" time="1.078"/>
+    <testcase classname="tests.utils.test_dates" name="test_13" time="0.243"/>
+    <testcase classname="tests.utils.test_dates" name="test_14" time="2.182"/>
+  </testsuite>
+</testsuites>

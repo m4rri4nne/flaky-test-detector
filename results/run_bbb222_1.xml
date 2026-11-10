@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+  <testsuite name="pytest" errors="0" failures="1" skipped="0" tests="4" time="3.214" timestamp="2026-11-04T09:00:00">
+    <properties>
+      <property name="commit_sha" value="bbb222"/>
+      <property name="run_id" value="1003"/>
+    </properties>
+    <testcase classname="tests.checkout.test_payment" name="test_3" time="1.120"></testcase>
+    <testcase classname="tests.login.test_session" name="test_expiry" time="0.800">
+      <failure message="AssertionError: session still valid">AssertionError: session still valid</failure>
+    </testcase>
+    <testcase classname="tests.api.test_orders" name="test_create" time="0.512"/>
+    <testcase classname="tests.api.test_orders" name="test_list" time="0.210"/>
+  </testsuite>
+</testsuites>
