@@ -1,16 +1,31 @@
 """Flakiness scoring and ranking.
 
 A test is flaky on a commit when it both passed and failed on that same commit.
-The score of a test is ``flaky_commits / commits`` (see README).
+The score of a test is ``flaky_commits / commits`` (see README). Ranking and the
+flaky threshold use the lower bound of its 95% Wilson interval instead, so tests
+with few commits aren't over-reported.
 """
 
 from __future__ import annotations
 
+import math
 from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Iterable
 
 from .parsers import TestResult
+
+
+def wilson_interval(successes: int, n: int, z: float = 1.96) -> tuple[float, float]:
+    """Wilson score interval for a proportion (``z=1.96`` is 95% confidence)."""
+    if n <= 0:
+        return 0.0, 0.0
+    p = successes / n
+    z2 = z * z
+    denom = 1 + z2 / n
+    centre = (p + z2 / (2 * n)) / denom
+    margin = (z / denom) * math.sqrt(p * (1 - p) / n + z2 / (4 * n * n))
+    return max(0.0, centre - margin), min(1.0, centre + margin)
 
 
 @dataclass(frozen=True)
@@ -28,6 +43,16 @@ class TestScore:
     @property
     def score(self) -> float:
         return self.flaky_commits / self.commits if self.commits else 0.0
+
+    @property
+    def confidence_interval(self) -> tuple[float, float]:
+        """95% Wilson interval for the true flakiness rate."""
+        return wilson_interval(self.flaky_commits, self.commits)
+
+    @property
+    def lower_bound(self) -> float:
+        """Conservative score: low when there is little data, close to ``score`` when there is a lot."""
+        return self.confidence_interval[0]
 
 
 class FlakinessScorer:
@@ -67,7 +92,9 @@ class FlakinessRanker:
     """Ranks scores from most to least unstable.
 
     ``min_commits`` drops tests with too little data to be trusted;
-    ``threshold`` is the minimum score for a test to be considered flaky.
+    ``threshold`` is the minimum Wilson lower bound (see :attr:`TestScore.lower_bound`)
+    for a test to be considered flaky. Ranking uses the same lower bound, so tests
+    with little data don't outrank well-observed ones.
     """
 
     def __init__(self, threshold: float = 0.1, min_commits: int = 5) -> None:
@@ -79,13 +106,17 @@ class FlakinessRanker:
         self.min_commits = min_commits
 
     def rank(self, scores: Iterable[TestScore]) -> list[TestScore]:
-        """All tests with enough data, worst first (ties: more flaky commits, then name)."""
+        """All tests with enough data, worst first (by lower bound; ties: score, flaky commits, name)."""
         eligible = (s for s in scores if s.commits >= self.min_commits)
-        return sorted(eligible, key=lambda s: (-s.score, -s.flaky_commits, s.name))
+        return sorted(
+            eligible, key=lambda s: (-s.lower_bound, -s.score, -s.flaky_commits, s.name)
+        )
 
     def flaky(self, scores: Iterable[TestScore]) -> list[TestScore]:
-        """Ranked tests whose score is at or above the threshold (and above zero)."""
-        return [s for s in self.rank(scores) if s.score > 0 and s.score >= self.threshold]
+        """Ranked tests whose lower bound is at or above the threshold (and above zero)."""
+        return [
+            s for s in self.rank(scores) if s.lower_bound > 0 and s.lower_bound >= self.threshold
+        ]
 
 
 def rank_results(

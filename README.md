@@ -180,7 +180,7 @@ analyze another period or report.
 | `files` | Local JUnit XML files (positional, optional if `--repo` is set) | – |
 | `--repo owner/name` | Also fetch JUnit artifacts from GitHub Actions | off |
 | `--last-runs` | Number of GitHub Actions runs to analyze | `30` |
-| `--threshold` | Minimum score (0–1) to consider a test flaky | `0.1` |
+| `--threshold` | Minimum Wilson lower bound (0–1, 95% confidence) of the score to consider a test flaky; also used for ranking | `0.1` |
 | `--min-commits` | Ignore tests seen on fewer commits than this | `5` |
 | `--output-dir DIR` | Write result files (JSON, CSV, Markdown) to this directory | off |
 | `--formats` | Comma-separated formats to write: `json`, `csv`, `md` | all |

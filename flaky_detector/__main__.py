@@ -22,7 +22,7 @@ def build_parser() -> argparse.ArgumentParser:
     analyze.add_argument("--last-runs", type=int, default=30,
                          help="number of GitHub Actions runs to analyze, default 30")
     analyze.add_argument("--threshold", type=float, default=0.1,
-                         help="minimum flakiness score (0-1), default 0.1")
+                         help="minimum Wilson lower bound of the flakiness score (0-1), default 0.1")
     analyze.add_argument("--min-commits", type=int, default=5,
                          help="ignore tests seen on fewer commits, default 5")
     analyze.add_argument("--output-dir", metavar="DIR",

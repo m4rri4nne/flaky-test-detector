@@ -11,7 +11,7 @@ from pathlib import Path
 from .scoring import FlakinessRanker, TestScore
 
 FORMATS = ("json", "csv", "md")
-_CSV_FIELDS = ["test", "score", "flaky_commits", "commits", "is_flaky", "commits_where_flaky"]
+_CSV_FIELDS = ["test", "score", "lower_bound", "flaky_commits", "commits", "is_flaky", "commits_where_flaky"]
 
 
 @dataclass(frozen=True)
@@ -58,7 +58,8 @@ def render_json(report: Report) -> str:
         "flaky_count": len(report.flaky),
         "flaky_rate": round(report.flaky_rate, 4),
         "tests": [
-            {"name": s.name, "score": round(s.score, 4), "commits": s.commits,
+            {"name": s.name, "score": round(s.score, 4),
+             "lower_bound": round(s.lower_bound, 4), "commits": s.commits,
              "flaky_commits": s.flaky_commits, "is_flaky": s.name in flaky_names,
              "commits_where_flaky": list(s.commits_where_flaky),
              "error_messages": list(s.error_messages)}
@@ -74,7 +75,7 @@ def write_csv(report: Report, path: Path) -> None:
         writer = csv.writer(fh)
         writer.writerow(_CSV_FIELDS)
         for s in report.tests:
-            writer.writerow([s.name, f"{s.score:.4f}", s.flaky_commits, s.commits,
+            writer.writerow([s.name, f"{s.score:.4f}", f"{s.lower_bound:.4f}", s.flaky_commits, s.commits,
                              str(s.name in flaky_names).lower(), " ".join(s.commits_where_flaky)])
 
 
@@ -97,9 +98,9 @@ def render_markdown(report: Report) -> str:
     if not report.flaky:
         lines.append("No flaky tests found. 🎉")
     else:
-        lines += ["| # | Test | Score | Flaky commits |", "|---:|---|---:|---:|"]
+        lines += ["| # | Test | Score | Lower bound | Flaky commits |", "|---:|---|---:|---:|---:|"]
         for i, s in enumerate(report.flaky, 1):
-            lines.append(f"| {i} | `{_md_cell(s.name)}` | {s.score:.0%} | "
+            lines.append(f"| {i} | `{_md_cell(s.name)}` | {s.score:.0%} | {s.lower_bound:.0%} | "
                          f"{s.flaky_commits}/{s.commits} |")
     return "\n".join(lines) + "\n"
 
