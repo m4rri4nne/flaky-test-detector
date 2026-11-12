@@ -69,14 +69,14 @@ Ordered by value ÷ effort and by dependency. Each item lists the comments it an
 - **R-1c. Run count.** Add `runs` per test and per commit to `TestScore` and all three report
   formats. *(#16)*
 
-### Phase 2: trustworthy statistics  · small–medium
+### Phase 2: trustworthy statistics  · small–medium - Done
 - ***R-2. Confidence.*** Add a Wilson interval (and an optional recency weight) to the score;
   rank by the lower bound or show it next to the score. Keeps `min_commits` but softens the
-  "new test at 0.2" artefact. *(#15, #17)*
+  "new test at 0.2" artefact. *(#15, #17)* - Done
 - **R-4. Message normalization and counts.** Replace numbers/ids/durations/hex with
   placeholders, store `{message: count}` instead of a distinct list, keep the raw first example.
   Bump the JSON schema (`error_messages` → keep the old key for compatibility, add
-  `error_message_counts`). *(#6, #15)*
+  `error_message_counts`). *(#6, #15)* - Since we need to pass more context to the agent, normalize the error message could impact in the analysis - Possible solution is to add a RAG with Postgres(investigate), for now I will only improve the prompt of the agent itself.
 
 ### Phase 3: richer evidence for the agent  · medium
 - **R-3. Send the agent only what it needs.** Filter `fetch_json_report` to flaky tests (and

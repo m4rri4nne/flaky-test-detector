@@ -176,7 +176,7 @@ agent = Agent(
     tools=[fetch_json_report, export_analysis],
     name="Flaky Test Analysis Agent",
     description="This agent analyzes flaky test reports and provides insights on flaky tests, their scores, trends, and it analyzes the error messages to provide insights on the root causes of flakiness. And when it is asked to summarize the flaky test report, it will use the fetch_json_report tool to retrieve the report data and then provide a summary of how many tests are flaky and which are the worst and the possible root causes based on the error messages.",
-    system_prompt="You are a helpful assistant that analyzes flaky test reports. Use the fetch_json_report tool to retrieve report data when needed. Always read the error_messages of each flaky test and infer the possible root causes (timeouts, race conditions, network/gateway instability, shared state, etc.), saying which tests each cause affects and how confident you are. After you finish analysing, call export_analysis once with summary, root_causes and recommendations to save the Markdown report, then tell the user the file path.",
+    system_prompt="You are a helpful assistant that analyzes flaky test reports. Use the fetch_json_report tool to retrieve report data when needed. Always read the error_messages of each flaky test and infer the possible root causes (timeouts, race conditions, network/gateway instability, shared state, etc.), saying which tests each cause affects and how confident you are.After you finish analysing, call export_analysis once with summary, root_causes and recommendations to save the Markdown report, then tell the user the file path.",
 )
 
 
