@@ -5,6 +5,12 @@
 Each commit gets several runs (re-runs). Tests have a hidden behaviour:
 stable, flaky (random failure rate), broken-on-some-commits (fails in every
 run, so it is NOT flaky) or skipped. Output is deterministic for a given --seed.
+
+With --env NAME=v1,v2 every run is written once per value (a CI matrix: same
+commit and run id, one file per leg, tagged with a NAME property). A few stable
+tests then become "config-dependent": they always fail in one value and always
+pass in the others, so they are NOT flaky. Analyze with --env-property NAME.
+Without --env the output is identical to what it was before this option existed.
 """
 
 from __future__ import annotations
@@ -47,7 +53,17 @@ def build_tests(rng: random.Random):
     return tests
 
 
-def render(commit, run_id, attempt, results, ts):
+def pick_config_dependent(tests, env_values, seed, share=0.08):
+    """Stable tests that always fail in one env value. Own RNG: the main stream is untouched."""
+    rng = random.Random(seed + 1)
+    return {
+        (m, n): rng.choice(env_values)
+        for m, n, kind, _ in tests
+        if kind == "stable" and rng.random() < share
+    }
+
+
+def render(commit, run_id, attempt, results, ts, env=None):
     fails = sum(1 for r in results if r[1] == "failure")
     errs = sum(1 for r in results if r[1] == "error")
     skips = sum(1 for r in results if r[1] == "skipped")
@@ -58,6 +74,7 @@ def render(commit, run_id, attempt, results, ts):
         "    <properties>",
         f'      <property name="commit_sha" value="{commit}"/>',
         f'      <property name="run_id" value="{run_id}"/>',
+        *([f'      <property name={quoteattr(env[0])} value={quoteattr(env[1])}/>'] if env else []),
         "    </properties>",
     ]
     for cls, kind, msg, t, name in results:
@@ -78,10 +95,20 @@ def main() -> None:
     ap.add_argument("--runs", type=int, default=3, help="runs (re-runs) per commit")
     ap.add_argument("--out", default="results")
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--env", metavar="NAME=v1,v2",
+                    help="write one file per value per run (a CI matrix), e.g. python=3.12,3.13")
     args = ap.parse_args()
+
+    env_name, env_values = None, [None]
+    if args.env:
+        env_name, _, raw = args.env.partition("=")
+        env_values = [v.strip() for v in raw.split(",") if v.strip()]
+        if not env_name or len(env_values) < 2:
+            ap.error("--env needs a name and at least two values, e.g. python=3.12,3.13")
 
     rng = random.Random(args.seed)
     tests = build_tests(rng)
+    config_fail = pick_config_dependent(tests, env_values, args.seed) if env_name else {}
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     run_id = 20000
@@ -92,21 +119,28 @@ def main() -> None:
         broken_here = {(m, n) for m, n, k, p in tests if k == "broken" and rng.random() < p}
         for attempt in range(1, args.runs + 1):
             run_id += 1
-            results = []
-            for module, name, kind, p in tests:
-                t = rng.uniform(0.005, 2.5)
-                if kind == "skipped":
-                    results.append((module, "skipped", "", 0.0, name))
-                elif (module, name) in broken_here:
-                    results.append((module, "failure", "AssertionError: regression in this commit", t, name))
-                elif kind == "flaky" and rng.random() < p:
-                    tag = "error" if rng.random() < 0.2 else "failure"
-                    results.append((module, tag, rng.choice(FLAKY_MESSAGES), t, name))
-                else:
-                    results.append((module, "pass", "", t, name))
             ts = f"2026-11-{1 + c % 28:02d}T{8 + attempt:02d}:00:00"
-            (out / f"run_{sha}_{attempt}.xml").write_text(render(sha, run_id, attempt, results, ts))
-            written += 1
+            for env_value in env_values:  # one leg per env value; a single pass without --env
+                results = []
+                for module, name, kind, p in tests:
+                    t = rng.uniform(0.005, 2.5)
+                    if kind == "skipped":
+                        results.append((module, "skipped", "", 0.0, name))
+                    elif env_name and config_fail.get((module, name)) == env_value:
+                        results.append((module, "failure",
+                                        f"AssertionError: fails on {env_name}={env_value}", t, name))
+                    elif (module, name) in broken_here:
+                        results.append((module, "failure", "AssertionError: regression in this commit", t, name))
+                    elif kind == "flaky" and rng.random() < p:
+                        tag = "error" if rng.random() < 0.2 else "failure"
+                        results.append((module, tag, rng.choice(FLAKY_MESSAGES), t, name))
+                    else:
+                        results.append((module, "pass", "", t, name))
+                suffix = f"_{env_value}" if env_name else ""
+                env = (env_name, env_value) if env_name else None
+                (out / f"run_{sha}_{attempt}{suffix}.xml").write_text(
+                    render(sha, run_id, attempt, results, ts, env))
+                written += 1
     print(f"wrote {written} files ({len(tests)} tests each) to {out}/")
 
 

@@ -117,3 +117,46 @@ def test_report_written_even_without_flaky(tmp_path):
     assert cli.main(["analyze", "--output-dir", str(out), *files]) == 0
     (md,) = out.glob("flaky-report-*.md")
     assert "No flaky tests" in md.read_text(encoding="utf-8")
+
+
+def write_env(tmp_path, name, sha, passed, py):
+    f = tmp_path / name
+    body = '<testcase classname="m" name="t"/>' if passed else \
+        '<testcase classname="m" name="t"><failure message="x"/></testcase>'
+    f.write_text(junit(body, sha=sha, python=py))
+    return str(f)
+
+
+def make_matrix_files(tmp_path, commits=5):
+    files = []
+    for i in range(commits):
+        files.append(write_env(tmp_path, f"a{i}.xml", f"c{i}", True, "3.12"))
+        files.append(write_env(tmp_path, f"b{i}.xml", f"c{i}", False, "3.13"))
+    return files
+
+
+def test_matrix_failure_is_flaky_without_env_and_config_dependent_with_it(tmp_path, capsys):
+    files = make_matrix_files(tmp_path)
+    assert cli.main(["analyze", *files]) == 1  # today's behaviour: false positive
+    capsys.readouterr()
+    assert cli.main(["analyze", "--env-property", "python", *files]) == 0
+    out = capsys.readouterr().out
+    assert "1 config-dependent test(s)" in out and "m::t" in out
+    assert "Environment detected for 10/10 results (2 distinct)" in out
+
+
+def test_env_report_files_include_environment_section(tmp_path):
+    import json
+
+    files = make_matrix_files(tmp_path)
+    out_dir = tmp_path / "out"
+    cli.main(["analyze", "--env-property", "python", "--output-dir", str(out_dir), *files])
+    data = json.loads(next(out_dir.glob("*.json")).read_text())
+    assert data["environment"]["coverage"] == 1.0 and data["environment"]["config_dependent_count"] == 1
+    assert "## Environments" in next(out_dir.glob("*.md")).read_text()
+
+
+def test_missing_env_warns(tmp_path, capsys):
+    files = make_flaky_files(tmp_path)  # no python property in these files
+    cli.main(["analyze", "--env-property", "python", *files])
+    assert "no environment" in capsys.readouterr().err

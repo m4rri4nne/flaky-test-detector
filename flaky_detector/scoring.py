@@ -1,6 +1,10 @@
 """Flakiness scoring and ranking.
 
-A test is flaky on a commit when it both passed and failed on that same commit.
+A test is flaky on a commit when it both passed and failed on that same commit
+*in the same environment*. When results carry an ``env`` (opt-in, see
+:class:`~flaky_detector.parsers.JUnitParser`), a commit where every environment is
+consistent but they disagree with each other (pass on 3.12, fail on 3.13) is not
+flaky: it is counted as config-dependent. Without ``env`` nothing changes.
 The score of a test is ``flaky_commits / commits`` (see README). Ranking and the
 flaky threshold use the lower bound of its 95% Wilson interval instead, so tests
 with few commits aren't over-reported.
@@ -9,6 +13,7 @@ with few commits aren't over-reported.
 from __future__ import annotations
 
 import math
+import statistics
 from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Iterable
@@ -28,6 +33,11 @@ def wilson_interval(successes: int, n: int, z: float = 1.96) -> tuple[float, flo
     return max(0.0, centre - margin), min(1.0, centre + margin)
 
 
+def _percentile(sorted_values: list[float], q: float) -> float:
+    """Nearest-rank percentile of an already sorted, non-empty list."""
+    return sorted_values[max(0, math.ceil(q * len(sorted_values)) - 1)]
+
+
 @dataclass(frozen=True)
 class TestScore:
     """Flakiness score of a single test."""
@@ -38,7 +48,14 @@ class TestScore:
     commits: int  # commits with usable data for this test
     flaky_commits: int  # commits where the test had mixed outcomes
     commits_where_flaky: tuple[str, ...] = field(default=())
+    # commits where each environment was consistent but environments disagreed
+    config_dependent_commits: tuple[str, ...] = field(default=())
     error_messages: tuple[str, ...] = field(default=())  # distinct failure messages, first seen first
+    runs: int = 0  # executions behind the score (retries inside a job count too)
+    flaky_commit_runs: tuple[tuple[str, int], ...] = field(default=())  # (sha, runs) per flaky commit
+    duration_median: float | None = None  # seconds, over runs that reported a time
+    duration_p95: float | None = None
+    sample_trace: str | None = None  # truncated stack trace of the first failure that had one
 
     @property
     def score(self) -> float:
@@ -63,26 +80,48 @@ class FlakinessScorer:
     """
 
     def score(self, results: Iterable[TestResult]) -> list[TestScore]:
-        # test name -> commit sha -> set of "passed" booleans seen
-        outcomes: dict[str, dict[str, set[bool]]] = defaultdict(lambda: defaultdict(set))
+        # test name -> commit sha -> env -> set of "passed" booleans seen
+        outcomes: dict[str, dict[str, dict[str | None, set[bool]]]] = defaultdict(
+            lambda: defaultdict(lambda: defaultdict(set))
+        )
         messages: dict[str, dict[str, None]] = defaultdict(dict)  # ordered, de-duplicated
+        runs: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
+        times: dict[str, list[float]] = defaultdict(list)
+        traces: dict[str, str] = {}
         for r in results:
             if not r.commit_sha or r.outcome.value == "skipped":
                 continue
-            outcomes[r.name][r.commit_sha].add(r.passed)
+            outcomes[r.name][r.commit_sha][r.env].add(r.passed)
+            runs[r.name][r.commit_sha] += 1
+            if r.time > 0:
+                times[r.name].append(r.time)
+            if not r.passed and r.trace:
+                traces.setdefault(r.name, r.trace)
             if not r.passed and r.message:
                 messages[r.name][r.message] = None
 
         scores = []
         for name, by_commit in outcomes.items():
-            flaky = tuple(sorted(sha for sha, seen in by_commit.items() if len(seen) > 1))
+            flaky, config_dependent = [], []
+            for sha, by_env in by_commit.items():
+                if any(len(seen) > 1 for seen in by_env.values()):
+                    flaky.append(sha)
+                elif len(set().union(*by_env.values())) > 1:
+                    config_dependent.append(sha)
+            durations = sorted(times[name])
             scores.append(
                 TestScore(
                     name=name,
                     commits=len(by_commit),
                     flaky_commits=len(flaky),
-                    commits_where_flaky=flaky,
+                    commits_where_flaky=tuple(sorted(flaky)),
+                    config_dependent_commits=tuple(sorted(config_dependent)),
                     error_messages=tuple(messages[name]),
+                    runs=sum(runs[name].values()),
+                    flaky_commit_runs=tuple((sha, runs[name][sha]) for sha in sorted(flaky)),
+                    duration_median=statistics.median(durations) if durations else None,
+                    duration_p95=_percentile(durations, 0.95) if durations else None,
+                    sample_trace=traces.get(name),
                 )
             )
         return scores

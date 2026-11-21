@@ -193,3 +193,13 @@ def test_http_error_message_has_hint_and_no_token(monkeypatch):
         client._request("https://api.github.com/repos/o/r/actions/runs?per_page=1")
     assert "401" in str(exc.value) and "Bad credentials" in str(exc.value)
     assert "secret-token" not in str(exc.value)
+
+
+def test_env_from_artifact_is_opt_in(monkeypatch):
+    xml = junit('<testcase name="t"/>', sha=None, run_id=None)
+    client = FakeClient(
+        [{"id": 1, "head_sha": "s"}], {1: [{"id": 5, "name": "test-py313"}]},
+        {5: make_zip({"j.xml": xml})})
+    patch_client(monkeypatch, client)
+    assert fetch_junit_results("o/r", token="t")[0].env is None
+    assert fetch_junit_results("o/r", token="t", env_from_artifact=True)[0].env == "test-py313"

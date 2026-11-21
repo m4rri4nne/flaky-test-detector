@@ -52,79 +52,30 @@ code writes to `analysis/`; and it says the agent question is hard-coded, but `m
 | 19 | (anonymous, DevOps) | Track failure frequency, duration, env, history; integrate Jenkins/Actions; how to tell flaky from regression without false positives. | **Partly** | Actions integration exists; the parser is generic, only the fetcher is GitHub-specific (Jenkins fetcher is R-12). Flaky vs regression is exactly the same-commit rule; the false-positive risk is the env gap (R-1). Duration/frequency overlap #13 and #7. |
 | 20 | (anonymous, last) | Scheduled reruns of main; give the agent test source so it can go beyond error messages. | **Valid (both)** | Same as #1 (R-7). Test source for the agent is a good, bounded add (R-10). |
 
-## 3. Roadmap
+## 3. What was implemented
 
-Ordered by value ÷ effort and by dependency. Each item lists the comments it answers.
+| Item | What | Answers |
+|---|---|---|
+| R-1a | Environment dimension; cross-environment disagreement reported as "config-dependent" (never keyed on `run_id`) | #3, #5, #8, #12, #2, #19 |
+| R-1b | In-job retries (`flakyFailure`, `flakyError`, `rerunFailure`, `rerunError`) read as failed attempts | #18 |
+| R-1c | Run counts per test and per flaky commit | #16 |
+| R-2 | Wilson interval; ranking and threshold use the lower bound | #15, #17 |
+| R-3 | Agent receives only flaky tests; README drifts fixed | #1 |
+| R-5 | Duration median/p95 and truncated stack trace per test | #4, #13 |
+| R-6 | `trend` command for rising tests | #7 |
+| R-13 | Quarantine suggestions (flaky, lower bound >= 30%, not config-dependent) | #15 |
 
-### Phase 1: correctness (stop wrong flags)  · small
-- **R-1a. Environment dimension.** Read env properties from JUnit (`python`, `os`, `job`, runner
-  label, or a configurable list) and, on GitHub, derive a fingerprint from the job/artifact name.
-  Score within `(test, commit_sha, env)`. Report cross-environment disagreement as a separate
-  "config-dependent" category, not as flaky. *(#3, #5, #8, #12, #2, #19)*
-  - Do **not** key on `run_id` (re-runs share it).
-  - Test: fixture with one stable-pass and one stable-fail job on the same SHA ⇒ not flaky,
-    listed as config-dependent. Add to `tests/test_scoring.py` and the sample generator.
-- **R-1b. Read in-job retries.** Treat `<flakyFailure>`, `<flakyError>`, `<rerunFailure>`,
-  `<rerunError>` as a failed attempt followed by the final outcome (record both). *(#18)*
-- **R-1c. Run count.** Add `runs` per test and per commit to `TestScore` and all three report
-  formats. *(#16)*
+## Not planned
 
-### Phase 2: trustworthy statistics  · small–medium - Done
-- ***R-2. Confidence.*** Add a Wilson interval (and an optional recency weight) to the score;
-  rank by the lower bound or show it next to the score. Keeps `min_commits` but softens the
-  "new test at 0.2" artefact. *(#15, #17)* - Done
-- **R-4. Message normalization and counts.** Replace numbers/ids/durations/hex with
-  placeholders, store `{message: count}` instead of a distinct list, keep the raw first example.
-  Bump the JSON schema (`error_messages` → keep the old key for compatibility, add
-  `error_message_counts`). *(#6, #15)* - Since we need to pass more context to the agent, normalize the error message could impact in the analysis - Possible solution is to add a RAG with Postgres(investigate), for now I will only improve the prompt of the agent itself.
-
-### Phase 3: richer evidence for the agent  · medium
-- **R-3. Send the agent only what it needs.** Filter `fetch_json_report` to flaky tests (and
-  drop `commits_where_flaky` unless asked). This makes the token-budget claim in #1 actually
-  true. Also fix the README drifts. *(#1)*
-- **R-5. Traces and duration.** Keep a truncated stack trace and per-test duration stats
-  (median, p95, variance across the flaky commits). Optionally pass runner/job labels. Lets the
-  agent separate "slow runner" from "race condition". *(#4, #13)*
-- **R-6. Deterministic trend.** A `trend` command (or a report section) comparing the last N
-  JSON reports: score delta per test, "rising" flag when it crosses a configurable slope before
-  the threshold. Needs reports to persist: today the workflow only uploads them as artifacts, so
-  commit them to a branch or download previous artifacts first. *(#7)*
-
-### Phase 4: more signal  · medium–large
-- **R-7. Scheduled reruns.** A workflow that reruns `main` (or the last K commits) N times on a
-  schedule, uploading JUnit artifacts with distinct names per attempt. Document the runner-minute
-  cost and make N and cadence inputs. *(#1, #20, #2)*
-- **R-8. Confirm step.** A `confirm` command / workflow job that reruns only the flagged tests N
-  times and records the pass rate per test. Gives the "run 10× before the agent investigates"
-  behaviour that comment #2 credits. *(#2)*
-- **R-10. Test source for the agent.** Attach the source of each flagged test (bounded length,
-  resolved from `classname` + repo checkout) so root causes can cite code, not just messages.
-  *(#20)*
-
-### Phase 5: quality of the AI step  · medium
-- **R-9. Evaluation harness.** Extend `generate_junit.py` so each flaky test carries a ground-truth
-  cause (timeout, race, network, order) and emits messages consistent with it. Score the agent on
-  evidence alignment (cites the right messages / says "unknown") separately from readability, and
-  run it across models via Strands' model providers (Gemini today; add one other hosted and one
-  local model). *(#9, #6, #10)*
-
-### Later / optional
-- **R-11. Reproduce mode for order dependence.** Replay with fixed seeds, bisect to the minimal
-  offender pair, emit the seed for CI. Language/runner specific, so start with pytest only. *(#14, #4)*
-- **R-12. Other CI sources.** A Jenkins fetcher behind the same interface as `github.py`. *(#19)*
-- **R-13. Quarantine suggestions.** Already on the README roadmap; build on R-1 and R-2 so only
-  high-confidence, non-config-dependent tests are suggested. *(#15)*
-
-### Suggested order
-`R-1a/b/c → R-4 → R-2 → R-3 → R-5 → R-6 → R-9 → R-7/R-8 → R-10 → R-13 → R-11/R-12`
-
-R-1 first because it removes false positives (the credibility problem four commenters raised);
-R-3 is a one-hour fix that makes a claim in the article accurate; R-7/R-8 come later because
-they cost CI minutes and depend on a clean scoring model.
+The project is being finalized without these: error message normalization and counts (R-4),
+scheduled reruns (R-7), a `confirm` step (R-8), test source for the agent (R-10), an evaluation
+harness across models (R-9), reproduce mode for order dependence (R-11) and a Jenkins fetcher
+(R-12). The related comments (#1, #2, #6, #9, #10, #14, #19, #20) remain valid ideas, but are out
+of the delivered scope.
 
 ## 4. Replies worth posting
 - #12 (Oleksandr): thank them, but explain that GitHub re-runs keep the same `run_id`, so the
   missing dimension is environment, not run.
 - #18 (Idan): admit the parser reads only the final `<failure>`/`<error>` and that retry elements
-  are planned (R-1b).
-- #2 (IICTP) and #20: clarify whether the 10× confirmation is implemented or planned (R-8).
+  are now read (R-1b).
+- #2 (IICTP) and #20: clarify that the 10× confirmation and scheduled reruns are not implemented.

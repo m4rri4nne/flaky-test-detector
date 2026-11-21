@@ -147,9 +147,15 @@ def fetch_junit_results(
     last_runs: int = 30,
     token: str | None = None,
     parser: JUnitParser | None = None,
+    env_from_artifact: bool = False,
     warn=lambda msg: print(f"warning: {msg}", file=sys.stderr),
 ) -> list[TestResult]:
-    """Parse every JUnit XML found in the artifacts of the last ``last_runs`` runs."""
+    """Parse every JUnit XML found in the artifacts of the last ``last_runs`` runs.
+
+    With ``env_from_artifact`` the artifact name is the environment of its results
+    (useful when each matrix leg uploads its own artifact). Env properties in the
+    XML still take priority. Off by default: artifact names are not always meaningful.
+    """
     if not re.fullmatch(r"[\w.-]+/[\w.-]+", repo):
         raise GitHubError(f"invalid repo {repo!r}, expected 'owner/name'")
     client = GitHubClient(token or get_token())
@@ -173,6 +179,7 @@ def fetch_junit_results(
                         parser.parse_string(
                             archive.read(member), source=source,
                             default_commit_sha=sha, default_run_id=run_id,
+                            default_env=artifact["name"] if env_from_artifact else None,
                         )
                     )
                 except JUnitParseError as exc:

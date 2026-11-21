@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from dotenv import load_dotenv
+from flaky_detector.report import slim_report
 from strands import Agent, tool
 from strands.models.gemini import GeminiModel
 
@@ -35,7 +36,7 @@ def _load_reports() -> list[tuple[datetime, dict]]:
 
 
 @tool
-def fetch_json_report(timestamp: str = "", period: str = "") -> dict:
+def fetch_json_report(timestamp: str = "", period: str = "", include_commits: bool = False) -> dict:
     """Fetch flaky-test JSON report data so it can be analysed.
 
     Use this tool whenever the user asks about flaky tests, scores, trends or past reports.
@@ -46,12 +47,16 @@ def fetch_json_report(timestamp: str = "", period: str = "") -> dict:
     - timestamp as YYYY-MM-DDTHH:MM:SS: return the report generated at exactly that time.
     - timestamp as YYYY-MM-DD: return the latest report generated on that date.
     - nothing given: return the latest report available.
+    Only the flaky tests are returned (tests_analyzed / flaky_count describe the whole report).
+    Each has score, lower_bound, runs, duration_median / duration_p95 (seconds), error_messages and
+    sample_trace; use the durations and trace to tell slow-runner noise from races.
     Raises FileNotFoundError if no matching report exists.
 
     Args:
         timestamp: Report timestamp, YYYY-MM-DDTHH:MM:SS or YYYY-MM-DD (UTC). Leave empty for the latest report.
         period: One of "last_24_hours", "last_7_days", "last_30_days", "last_90_days",
             "last_180_days", "last_365_days". Leave empty when not asking for a period.
+        include_commits: Also return the commit SHAs where each test was flaky. Off by default.
 
     Returns:
         dict: A single report (generated_at, threshold, flaky_count, flaky_rate, tests, ...), or for a
@@ -65,24 +70,24 @@ def fetch_json_report(timestamp: str = "", period: str = "") -> dict:
         if period not in PERIODS:
             raise ValueError(f"Invalid period {period!r}. Use one of: {', '.join(PERIODS)}.")
         since = datetime.now(timezone.utc) - PERIODS[period]
-        selected = [data for when, data in reports if when >= since]
+        selected = [slim_report(data, include_commits) for when, data in reports if when >= since]
         if not selected:
             raise FileNotFoundError(f"No reports found for {period}.")
         return {"period": period, "count": len(selected), "reports": selected}
 
     if not timestamp:
-        return reports[-1][1]
+        return slim_report(reports[-1][1], include_commits)
 
     if "T" in timestamp:
         target = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S").replace(tzinfo=timezone.utc)
         for when, data in reports:
             if when.replace(microsecond=0) == target:
-                return data
+                return slim_report(data, include_commits)
     else:
         day = datetime.strptime(timestamp, "%Y-%m-%d").date()
         same_day = [data for when, data in reports if when.date() == day]
         if same_day:
-            return same_day[-1]
+            return slim_report(same_day[-1], include_commits)
     raise FileNotFoundError(f"Report for timestamp {timestamp} not found.")
 
 
@@ -176,7 +181,7 @@ agent = Agent(
     tools=[fetch_json_report, export_analysis],
     name="Flaky Test Analysis Agent",
     description="This agent analyzes flaky test reports and provides insights on flaky tests, their scores, trends, and it analyzes the error messages to provide insights on the root causes of flakiness. And when it is asked to summarize the flaky test report, it will use the fetch_json_report tool to retrieve the report data and then provide a summary of how many tests are flaky and which are the worst and the possible root causes based on the error messages.",
-    system_prompt="You are a helpful assistant that analyzes flaky test reports. Use the fetch_json_report tool to retrieve report data when needed. Always read the error_messages of each flaky test and infer the possible root causes (timeouts, race conditions, network/gateway instability, shared state, etc.), saying which tests each cause affects and how confident you are.After you finish analysing, call export_analysis once with summary, root_causes and recommendations to save the Markdown report, then tell the user the file path.",
+    system_prompt="You are a helpful assistant that analyzes flaky test reports. Use the fetch_json_report tool to retrieve report data when needed. Always read the error_messages of each flaky test and infer the possible root causes (timeouts, race conditions, network/gateway instability, shared state, etc.), saying which tests each cause affects and how confident you are. Use duration_median/duration_p95 and sample_trace when present to separate slow-runner noise from races. After you finish analysing, call export_analysis once with summary, root_causes and recommendations to save the Markdown report, then tell the user the file path.",
 )
 
 

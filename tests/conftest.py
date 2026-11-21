@@ -15,8 +15,8 @@ def make_result():
     return _make
 
 
-def junit(cases: str, sha: str | None = "abc", run_id: str | None = "7") -> str:
-    props = ""
+def junit(cases: str, sha: str | None = "abc", run_id: str | None = "7", **extra: str) -> str:
+    props = "".join(f'<property name="{k}" value="{v}"/>' for k, v in extra.items())
     if sha:
         props += f'<property name="commit_sha" value="{sha}"/>'
     if run_id:

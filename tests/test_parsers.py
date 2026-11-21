@@ -108,3 +108,38 @@ def test_parse_files_concatenates(tmp_path):
         f.write_text(junit(f'<testcase name="t{i}"/>'))
         paths.append(f)
     assert len(JUnitParser().parse_files(paths)) == 3
+
+
+def test_env_is_off_unless_properties_are_configured():
+    xml = junit('<testcase name="t"/>', python="3.13")
+    assert JUnitParser().parse_string(xml)[0].env is None
+
+
+def test_env_built_from_configured_properties_only():
+    xml = junit('<testcase name="t"/>', python="3.13", os="linux", hostname="runner-42")
+    r = JUnitParser(env_properties=["python", "os"]).parse_string(xml)[0]
+    assert r.env == "python=3.13,os=linux"  # hostname is ignored: it was not asked for
+
+
+def test_env_none_when_no_configured_property_is_present():
+    xml = junit('<testcase name="t"/>')
+    assert JUnitParser(env_properties=["python"]).parse_string(xml)[0].env is None
+
+
+def test_default_env_only_fills_in_when_xml_has_none():
+    p = JUnitParser(env_properties=["python"])
+    assert p.parse_string(junit('<testcase name="t"/>'), default_env="leg-1")[0].env == "leg-1"
+    xml = junit('<testcase name="t"/>', python="3.12")
+    assert p.parse_string(xml, default_env="leg-1")[0].env == "python=3.12"
+
+
+def test_in_job_retry_counts_as_failed_attempt_then_pass():
+    from flaky_detector.parsers import JUnitParser
+    from tests.conftest import junit
+
+    xml = junit('<testcase classname="a" name="t" time="1.5">'
+                '<flakyFailure message="boom">trace line</flakyFailure></testcase>')
+    results = JUnitParser().parse_string(xml)
+    assert [r.outcome.value for r in results] == ["failed", "passed"]
+    assert results[0].message == "boom" and results[0].trace == "trace line"
+    assert results[1].time == 1.5

@@ -154,3 +154,54 @@ def test_error_messages_are_distinct_failures_only(make_result):
         make_result(outcome=F),  # no message
     ])
     assert s.error_messages == ("timeout", "boom")
+
+
+# -- environment dimension (R-1a) -------------------------------------------
+
+
+def test_pass_in_one_env_fail_in_another_is_config_dependent_not_flaky(make_result):
+    s = score_of([
+        make_result(outcome=P, env="python=3.12"),
+        make_result(outcome=F, env="python=3.13"),
+    ])
+    assert s.flaky_commits == 0 and s.score == 0.0
+    assert s.config_dependent_commits == ("c1",)
+
+
+def test_mixed_outcomes_inside_one_env_are_still_flaky(make_result):
+    s = score_of([
+        make_result(outcome=P, env="python=3.12"),
+        make_result(outcome=F, env="python=3.12"),
+        make_result(outcome=P, env="python=3.13"),
+    ])
+    assert s.flaky_commits == 1 and s.commits_where_flaky == ("c1",)
+    assert s.config_dependent_commits == ()
+
+
+def test_same_outcome_in_every_env_is_neither(make_result):
+    s = score_of([make_result(outcome=F, env="a"), make_result(outcome=F, env="b")])
+    assert s.flaky_commits == 0 and s.config_dependent_commits == ()
+
+
+def test_without_env_behaviour_is_unchanged(make_result):
+    s = score_of([make_result(outcome=P), make_result(outcome=F)])
+    assert s.flaky_commits == 1 and s.config_dependent_commits == ()
+
+
+def test_config_dependent_tests_are_not_flagged_flaky(make_result):
+    results = []
+    for i in range(5):
+        results += [make_result(sha=f"c{i}", outcome=P, env="py=3.12"),
+                    make_result(sha=f"c{i}", outcome=F, env="py=3.13")]
+    assert rank_results(results, threshold=0.1, min_commits=5) == []
+    [s] = FlakinessScorer().score(results)
+    assert len(s.config_dependent_commits) == 5
+
+
+def test_runs_durations_and_trace(make_result):
+    s = score_of([
+        make_result(outcome=P, time=1.0), make_result(outcome=F, time=3.0, trace="tb"),
+        make_result(outcome=P, time=2.0),
+    ])
+    assert s.runs == 3 and s.flaky_commit_runs == (("c1", 3),)
+    assert (s.duration_median, s.duration_p95, s.sample_trace) == (2.0, 3.0, "tb")

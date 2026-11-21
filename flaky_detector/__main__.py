@@ -7,7 +7,7 @@ import sys
 
 from .github import GitHubError, fetch_junit_results
 from .parsers import JUnitParseError, JUnitParser
-from .report import FORMATS, Report, write_reports
+from .report import FORMATS, EnvSummary, Report, write_reports
 from .scoring import FlakinessRanker, FlakinessScorer
 
 
@@ -30,7 +30,42 @@ def build_parser() -> argparse.ArgumentParser:
     analyze.add_argument("--formats", default=",".join(FORMATS),
                          help="comma-separated result formats for --output-dir "
                          f"({', '.join(FORMATS)}), default all")
+    analyze.add_argument("--env-property", action="append", default=[], metavar="NAME",
+                         help="JUnit property that identifies the environment (e.g. python, os); "
+                         "repeatable. Enables per-environment scoring; off by default")
+    analyze.add_argument("--env-from-artifact", action="store_true",
+                         help="with --repo, use each GitHub artifact's name as the environment")
+
+    trend = sub.add_parser("trend", help="Show tests whose score is rising across past reports")
+    trend.add_argument("reports_dir", nargs="?", default="reports",
+                       help="directory with flaky-report-*.json files, default reports")
+    trend.add_argument("--last", type=int, default=10, help="use the newest N reports, default 10")
+    trend.add_argument("--min-slope", type=float, default=0.02,
+                       help="score increase per report that counts as rising, default 0.02")
     return parser
+
+
+def run_trend(args: argparse.Namespace) -> int:
+    from .trend import compute_trends, load_reports, rising
+
+    try:
+        reports = load_reports(args.reports_dir, last=args.last)
+    except (OSError, ValueError, KeyError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+    if len(reports) < 3:
+        print(f"error: need at least 3 reports in {args.reports_dir}, found {len(reports)}",
+              file=sys.stderr)
+        return 2
+    risers = rising(compute_trends(reports), args.min_slope)
+    print(f"Compared {len(reports)} reports.")
+    if not risers:
+        print("No rising tests.")
+        return 0
+    print(f"{len(risers)} rising test(s) (not flaky yet):")
+    for t in risers:
+        print(f"  {t.scores[0]:.2f} -> {t.scores[-1]:.2f}  (+{t.slope:.3f}/report)  {t.name}")
+    return 1
 
 
 def expand_globs(patterns: list[str]) -> list[str]:
@@ -51,6 +86,8 @@ def expand_globs(patterns: list[str]) -> list[str]:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command == "trend":
+        return run_trend(args)
 
     if not args.files and not args.repo:
         print("error: pass JUnit XML files and/or --repo owner/name", file=sys.stderr)
@@ -58,9 +95,12 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         args.files = expand_globs(args.files)
-        results = JUnitParser().parse_files(args.files)
+        results = JUnitParser(env_properties=args.env_property).parse_files(args.files)
         if args.repo:
-            results += fetch_junit_results(args.repo, last_runs=args.last_runs)
+            fetch_kw = {"env_from_artifact": True} if args.env_from_artifact else {}
+            if args.env_property:
+                fetch_kw["parser"] = JUnitParser(env_properties=args.env_property)
+            results += fetch_junit_results(args.repo, last_runs=args.last_runs, **fetch_kw)
         ranker = FlakinessRanker(threshold=args.threshold, min_commits=args.min_commits)
         formats = tuple(f.strip() for f in args.formats.split(",") if f.strip())
         if set(formats) - set(FORMATS):
@@ -71,16 +111,33 @@ def main(argv: list[str] | None = None) -> int:
 
     scores = FlakinessScorer().score(results)
     flaky = ranker.flaky(scores)
+    env_enabled = bool(args.env_property or args.env_from_artifact)
+    env = EnvSummary.of(results) if env_enabled else None
     print(f"Parsed {len(results)} results from {len(args.files)} file(s)"
           + (f" and {args.repo}." if args.repo else "."))
+    if env:
+        print(f"Environment detected for {env.with_env}/{env.total} results "
+              f"({env.distinct} distinct).")
+        if env.coverage < 1:
+            print("warning: some results have no environment and are grouped together; "
+                  "config-dependence may be missed or misattributed.", file=sys.stderr)
+        if env.looks_too_fine:
+            print("warning: almost every result has a unique environment; the env key "
+                  "probably contains a per-run value, which hides flakiness.", file=sys.stderr)
     if args.output_dir:
-        report = Report.build(scores, ranker, args.repo or "local", len(results))
+        report = Report.build(scores, ranker, args.repo or "local", len(results), env=env)
         try:
             for path in write_reports(report, args.output_dir, formats):
                 print(f"Wrote {path}")
         except OSError as exc:
             print(f"error: {exc}", file=sys.stderr)
             return 2
+    config_dependent = [s for s in ranker.rank(scores) if s.config_dependent_commits]
+    if config_dependent:
+        print(f"{len(config_dependent)} config-dependent test(s) "
+              "(not flaky; differ across environments):")
+        for s in config_dependent:
+            print(f"  {s.name}  ({len(s.config_dependent_commits)}/{s.commits} commits)")
     if not flaky:
         print(f"No flaky tests at threshold {args.threshold} "
               f"(min commits {args.min_commits}).")

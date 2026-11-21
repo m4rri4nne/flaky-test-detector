@@ -147,7 +147,7 @@ python -m flaky_detector analyze ./results/*.xml --output-dir reports --formats 
 
 `<timestamp>` is the UTC generation time (e.g. `20261110T193223Z`), so each run writes new files
 instead of overwriting the previous ones. The files are written even when no flaky test is found.
-To follow the trend over time, keep the JSON files of each run (e.g. as CI artifacts) and compare them.
+To follow the trend over time, keep the JSON files of each run (e.g. as CI artifacts) in one directory and run `python -m flaky_detector trend reports/` (needs 3+ reports): it lists tests whose score is rising (`--min-slope`, `--last`) before they cross the threshold. Reports also list quarantine suggestions (flaky, lower bound ≥ 30%, no config dependence).
 
 ### 🤖 AI analysis agent
 
@@ -155,9 +155,9 @@ To follow the trend over time, keep the JSON files of each run (e.g. as CI artif
 [Strands Agents](https://strandsagents.com) and Gemini) that reads the JSON reports in `reports/`
 and infers possible **root causes** from the `error_messages` of each flaky test. It has two tools:
 
-- `fetch_json_report`: loads the latest report, one by timestamp (`YYYY-MM-DD` or
+- `fetch_json_report`: loads the latest report (flaky tests only, to keep the prompt small), one by timestamp (`YYYY-MM-DD` or
   `YYYY-MM-DDTHH:MM:SS`, UTC) or all reports in a period (`last_24_hours`, `last_7_days`, …, `last_365_days`).
-- `export_analysis`: saves `reports/flaky-analysis-<timestamp>.md` with the summary, root causes,
+- `export_analysis`: saves `analysis/flaky-analysis-<timestamp>.md` with the summary, root causes,
   recommendations and an evidence table of the raw error messages.
 
 Unlike the detector, the agent needs extra dependencies and an API key:
@@ -168,8 +168,7 @@ echo "GOOGLE_API_KEY=<your-key>" >> .env
 python agents/agent.py
 ```
 
-The question asked to the agent is hard-coded at the bottom of `agents/agent.py`; edit it to
-analyze another period or report.
+Pick the period with an argument (`python agents/agent.py last_7_days`, default `last_24_hours`).
 
 ## 🎛️ Options
 
@@ -184,6 +183,23 @@ analyze another period or report.
 | `--min-commits` | Ignore tests seen on fewer commits than this | `5` |
 | `--output-dir DIR` | Write result files (JSON, CSV, Markdown) to this directory | off |
 | `--formats` | Comma-separated formats to write: `json`, `csv`, `md` | all |
+| `--env-property NAME` | JUnit property that identifies the environment (e.g. `python`, `os`); repeatable. Enables per-environment scoring | off |
+| `--env-from-artifact` | With `--repo`, use each GitHub artifact's name as the environment | off |
+
+#### Environments (optional)
+
+By default a test that passes on one CI matrix leg (say Python 3.12) and fails on another (3.13) of
+the same commit looks flaky. With `--env-property` (or `--env-from-artifact`) results are grouped by
+environment: a test is flaky only if it flips **within** one environment. A test that is consistent
+in each environment but differs between them is reported as **config-dependent**, not flaky.
+
+```bash
+python -m flaky_detector analyze ./results/*.xml --env-property python --env-property os
+```
+
+The environment is never guessed: only the properties you list are used, so a per-run value (hostname,
+build number) can't end up in the key. The tool prints how many results had an environment and warns
+when some are missing or when almost every result has a unique one. Without these flags nothing changes.
 
 ## 🤖 Using it in GitHub Actions
 
@@ -233,14 +249,21 @@ flaky-test-detector/
 - 🔁 Flakiness can only be detected when there is **more than one run on the same commit** (re-runs). Without re-runs, a test can't be classified.
 - 🌩️ Failures caused by infrastructure (runner timeouts, network drops) may show up as flakiness and should be reviewed manually.
 
-## 🗺️ Roadmap
+## ✅ Features
 
-Things planned for the future:
+Rationale for each item lives in [docs/feedback-analysis-and-roadmap.md](docs/feedback-analysis-and-roadmap.md).
 
-- [x] ⏰ Example scheduled workflow
-- [x] 🧾 JSON / CSV / Markdown result files for `analyze` (`--output-dir`)
-- [x] 🤖 AI agent that suggests root causes from error messages
-- [ ] 🛋️ Suggested quarantine: flag flaky tests so they don't block merges
+- ⏰ Example scheduled workflow
+- 🧾 JSON / CSV / Markdown result files for `analyze` (`--output-dir`)
+- 🤖 AI agent that suggests root causes from error messages, durations and stack traces
+- 📐 Wilson confidence interval on the flakiness score
+- 🌍 Per-environment scoring; cross-environment disagreement is reported as "config-dependent", not flaky
+- 🔂 In-job retries (`<flakyFailure>`, `<rerunFailure>`, ...) read as failed attempts
+- 🔢 Run counts per test and per flaky commit in all report formats
+- ⏱️ Duration stats (median, p95) and a truncated stack trace per test
+- ✂️ The agent receives only the flaky tests
+- 📈 `trend` command that flags tests whose score is rising
+- 🛋️ Quarantine suggestions in the reports
 
 ## 🤝 Contributing
 
